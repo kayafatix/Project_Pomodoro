@@ -65,9 +65,10 @@ class MainMenuUI(QDialog):
         super(MainMenuUI,self).__init__()
         loadUi("UI//mainMenu.ui",self)
 
-        self.addRecipientButton.clicked.connect(self.add_button)
+        
 
     # SİLMEYİNİZ ----------------
+    # self.addRecipientButton.clicked.connect(self.add_button)
     # def add_button(self):
 
     #     recipients_email = self.addRecipientInput.text()
@@ -109,11 +110,11 @@ class LongBreakUI(QDialog):
 
 
 app = QApplication(sys.argv)
-UI = LoginUI() # This line determines which screen you will load at first
+# UI = LoginUI() # This line determines which screen you will load at first
 
 
 # You can also try one of other screens to see them.
-# UI = MainMenuUI()
+UI = MainMenuUI()
 # UI = PomodoroUI()
 # UI = ShortBreakUI()
 # UI = LongBreakUI()
