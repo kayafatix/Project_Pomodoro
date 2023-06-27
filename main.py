@@ -11,12 +11,10 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.uic import loadUi
 
-
-
 class LoginUI(QDialog):
     def __init__(self):
         super(LoginUI,self).__init__()
-        loadUi("Pomodoro Project//UI//login.ui",self)
+        loadUi("UI//login.ui",self)
 
         self.signUpButton.clicked.connect(self.sign_up_button)
 
@@ -37,7 +35,7 @@ class LoginUI(QDialog):
         user_email = self.emailInputSignUp.text()
 
         if "@" in user_email:
-            db = sqlite3.connect("Pomodoro Project//Database//users.db")
+            db = sqlite3.connect("Database//users.db")
             im = db.cursor()
             im.execute("INSERT INTO users(name,user_email) VALUES(?,?)",(name,user_email))
             db.commit()
@@ -47,7 +45,7 @@ class LoginUI(QDialog):
         
     def login_button(self):
 
-        db = sqlite3.connect("Pomodoro Project//Database//users.db")
+        db = sqlite3.connect("Database//users.db")
         im = db.cursor()
         im.execute("Select* FROM users")
 
@@ -66,14 +64,14 @@ class LoginUI(QDialog):
 class MainMenuUI(QDialog):
     def __init__(self):
         super(MainMenuUI,self).__init__()
-        loadUi("Pomodoro Project//UI//mainMenu.ui",self)
+        loadUi("UI//mainMenu.ui",self)
 
         # recipients_add = self.addRecipientInput.text() kullanılacak kod
         
 class PomodoroUI(QDialog):
     def __init__(self):
         super(PomodoroUI,self).__init__()
-        loadUi("Pomodoro Project//UI//pomodoro.ui",self)
+        loadUi("UI//pomodoro.ui",self)
 
         self.goToMainMenuButton.clicked.connect(LoginUI.go_main_menu)
 
@@ -81,14 +79,14 @@ class PomodoroUI(QDialog):
 class ShortBreakUI(QDialog):
     def __init__(self):
         super(ShortBreakUI,self).__init__()
-        loadUi("Pomodoro Project//UI//shortBreak.ui",self)
+        loadUi("UI//shortBreak.ui",self)
 
         self.goToMainMenuButton.clicked.connect(LoginUI.go_main_menu)
 
 class LongBreakUI(QDialog):
     def __init__(self):
         super(LongBreakUI,self).__init__()
-        loadUi("Pomodoro Project//UI//longBreak.ui",self)
+        loadUi("UI//longBreak.ui",self)
 
         self.goToMainMenuButton.clicked.connect(LoginUI.go_main_menu)
 
