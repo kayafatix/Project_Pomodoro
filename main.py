@@ -25,6 +25,7 @@ class LoginUI(QDialog):
         main_menu = MainMenuUI()
         widget.addWidget(main_menu)
         widget.setCurrentIndex(widget.currentIndex()+1)
+        # merhaba ben fatih
 
     def sign_up_button(self):
 
