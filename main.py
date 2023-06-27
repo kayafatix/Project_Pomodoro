@@ -53,6 +53,8 @@ class LoginUI(QDialog):
             im.execute("Select* FROM users")
             if login in i: 
                     self.go_main_menu()
+            elif login == "":
+                self.errorTextLogin.setText("")
             else:
                 self.errorTextLogin.setText("Sorry, your email address is not registered")  
 
