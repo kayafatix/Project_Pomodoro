@@ -1,3 +1,4 @@
+import sqlite3
 from time import time
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QDialog, QApplication
@@ -20,6 +21,20 @@ class LoginUI(QDialog):
         main_menu = MainMenuUI()
         widget.addWidget(main_menu)
         widget.setCurrentIndex(widget.currentIndex()+1)
+
+    def sign_up_button(self):
+
+        name = self.nameInputSignUp.text()
+        user_email = self.emailInputSignUp.text()
+
+        if "@" in user_email:
+            db = sqlite3.connect("C://Users//cfrdm//Desktop//ViT//Pomodoro Project//Database//users.db")
+            im = db.cursor()
+            im.execute("INSERT INTO users(name,user_email) VALUES(?,?)",(name,user_email))
+            db.commit()
+            print(f"The user named {name} has been successfully registered.")
+        else:
+            print("eksik veri girişi")
 
 
 class MainMenuUI(QDialog):
