@@ -63,6 +63,24 @@ class MainMenuUI(QDialog):
         super(MainMenuUI,self).__init__()
         loadUi("UI//mainMenu.ui",self)
 
+        self.addRecipientButton.clicked.connect(self.add_button)
+
+    # SİLMEYİNİZ ----------------
+    # def add_button(self):
+
+    #     recipients_email = self.addRecipientInput.text()
+    #     # print(email)
+        
+    #     if "@" in recipients_email:
+    #         db = sqlite3.connect("Database//pomodoro_database.db")
+    #         im = db.cursor()
+    #         im.execute("INSERT INTO recipients(recipients_email) VALUES(?)",(recipients_email))
+    #         db.commit()
+    #         print(f"{recipients_email} has been successfully added")
+    #     else:
+    #         self.errorTextRecipientsEmailLabel.setText("Sorry, your mail address must include '@' character")
+    # SİLMEYİNİZ ----------------
+
         # recipients_add = self.addRecipientInput.text() kullanılacak kod
         
 class PomodoroUI(QDialog):
