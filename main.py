@@ -16,7 +16,7 @@ from PyQt5.uic import loadUi
 class LoginUI(QDialog):
     def __init__(self):
         super(LoginUI,self).__init__()
-        loadUi("C:/Users/cfrdm/Desktop/ViT/Pomodoro Project/UI/login.ui",self)
+        loadUi("Pomodoro Project//UI//login.ui",self)
 
         self.signUpButton.clicked.connect(self.sign_up_button)
 
@@ -66,14 +66,14 @@ class LoginUI(QDialog):
 class MainMenuUI(QDialog):
     def __init__(self):
         super(MainMenuUI,self).__init__()
-        loadUi("C:/Users/cfrdm/Desktop/ViT/Pomodoro Project/UI/mainMenu.ui",self)
+        loadUi("Pomodoro Project//UI//mainMenu.ui",self)
 
         # recipients_add = self.addRecipientInput.text() kullanılacak kod
         
 class PomodoroUI(QDialog):
     def __init__(self):
         super(PomodoroUI,self).__init__()
-        loadUi("C:/Users/cfrdm/Desktop/ViT/Pomodoro Project/UI/pomodoro.ui",self)
+        loadUi("Pomodoro Project//UI//pomodoro.ui",self)
 
         self.goToMainMenuButton.clicked.connect(LoginUI.go_main_menu)
 
@@ -81,14 +81,14 @@ class PomodoroUI(QDialog):
 class ShortBreakUI(QDialog):
     def __init__(self):
         super(ShortBreakUI,self).__init__()
-        loadUi("C:/Users/cfrdm/Desktop/ViT/Pomodoro Project/UI/shortBreak.ui",self)
+        loadUi("Pomodoro Project//UI//shortBreak.ui",self)
 
         self.goToMainMenuButton.clicked.connect(LoginUI.go_main_menu)
 
 class LongBreakUI(QDialog):
     def __init__(self):
         super(LongBreakUI,self).__init__()
-        loadUi("C:/Users/cfrdm/Desktop/ViT/Pomodoro Project/UI/longBreak.ui",self)
+        loadUi("Pomodoro Project//UI//longBreak.ui",self)
 
         self.goToMainMenuButton.clicked.connect(LoginUI.go_main_menu)
 
