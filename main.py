@@ -37,7 +37,7 @@ class LoginUI(QDialog):
         user_email = self.emailInputSignUp.text()
 
         if "@" in user_email:
-            db = sqlite3.connect("C://Users//cfrdm//Desktop//ViT//Pomodoro Project//Database//users.db")
+            db = sqlite3.connect("Pomodoro Project//Database//users.db")
             im = db.cursor()
             im.execute("INSERT INTO users(name,user_email) VALUES(?,?)",(name,user_email))
             db.commit()
@@ -47,7 +47,7 @@ class LoginUI(QDialog):
         
     def login_button(self):
 
-        db = sqlite3.connect("C://Users//cfrdm//Desktop//ViT//Pomodoro Project//Database//users.db")
+        db = sqlite3.connect("Pomodoro Project//Database//users.db")
         im = db.cursor()
         im.execute("Select* FROM users")
 
