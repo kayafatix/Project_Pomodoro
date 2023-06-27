@@ -17,13 +17,10 @@ class LoginUI(QDialog):
         loadUi("UI//login.ui",self)
 
         self.signUpButton.clicked.connect(self.sign_up_button)
-
         self.loginButton.clicked.connect(self.login_button)
+        self.errorTextLogin.setText("")
+        self.errorTextSignUp.setText("")
         
-
-        # This is example of changing screen
-        
-
     def go_main_menu(self):
         main_menu = MainMenuUI()
         widget.addWidget(main_menu)
@@ -41,8 +38,8 @@ class LoginUI(QDialog):
             db.commit()
             print(f"The user named {name} has been successfully registered.")
         else:
-            print("eksik veri girişi")
-        
+            self.errorTextSignUp.setText("Sorry, your mail address must include '@' character")
+
     def login_button(self):
 
         db = sqlite3.connect("Database//users.db")
@@ -55,11 +52,9 @@ class LoginUI(QDialog):
         for i in im.fetchall():
             im.execute("Select* FROM users")
             if login in i: 
-                    self.go_main_menu()    
-                    # main_menu = MainMenuUI()
-                    # widget.addWidget(main_menu)
-                    # widget.setCurrentIndex(widget.currentIndex()+1)
-                # self.loginButton.clicked.connect(self.go_main_menu)
+                    self.go_main_menu()
+            else:
+                self.errorTextLogin.setText("Sorry, your email address is not registered")  
 
 class MainMenuUI(QDialog):
     def __init__(self):
@@ -93,6 +88,7 @@ class LongBreakUI(QDialog):
 
 app = QApplication(sys.argv)
 UI = LoginUI() # This line determines which screen you will load at first
+
 
 # You can also try one of other screens to see them.
 # UI = MainMenuUI()
