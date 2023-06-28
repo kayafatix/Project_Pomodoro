@@ -182,9 +182,9 @@ app = QApplication(sys.argv)
 
 
 # You can also try one of other screens to see them.
-UI = MainMenuUI()
+# UI = MainMenuUI()
 # UI = PomodoroUI()
-# UI = ShortBreakUI()
+UI = ShortBreakUI()
 # UI = LongBreakUI()
 
 widget = QtWidgets.QStackedWidget()
