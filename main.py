@@ -59,13 +59,22 @@ class LoginUI(QDialog):
             elif login == "":
                 self.errorTextLogin.setText("")
             else:
-                self.errorTextLogin.setText("Sorry, your email address is not registered")  
+                self.errorTextLogin.setText("Sorry, your email address is not registered")
+
+    # def get_login(self):
+    #     db = sqlite3.connect("Database//pomodoro_database.db")
+    #     im = db.cursor()
+    #     im.execute("Select* FROM users")
+
+    #     login = self.emailInputLogin.text()
+    #     print(login)
 
 class MainMenuUI(QDialog):
     def __init__(self):
         super(MainMenuUI,self).__init__()
         loadUi("UI//mainMenu.ui",self)
 
+        self.addProjectButton.clicked.connect(self.add_new_Project)
         
 
     # SİLMEYİNİZ ----------------
@@ -86,6 +95,20 @@ class MainMenuUI(QDialog):
     # SİLMEYİNİZ ----------------
 
         # recipients_add = self.addRecipientInput.text() kullanılacak kod
+
+    def add_new_Project(self):
+
+        db = sqlite3.connect("Database//pomodoro_database.db")
+        im = db.cursor()
+
+        project_name = self.addProjectInput.text()
+        login = LoginUI.get_login
+        print(list(login))
+
+        im.execute("INSERT INTO projects(project_name,user_email) VALUES(?,?)",(project_name,login))
+    
+        db.commit()
+        print(f"The Project named {project_name} has been successfully added.")
         
 class PomodoroUI(QDialog):
     def __init__(self):
@@ -178,11 +201,10 @@ class LongBreakUI(QDialog):
 
 
 app = QApplication(sys.argv)
-# UI = LoginUI() # This line determines which screen you will load at first
-
+UI = LoginUI() # This line determines which screen you will load at first
 
 # You can also try one of other screens to see them.
-UI = MainMenuUI()
+# UI = MainMenuUI()
 # UI = PomodoroUI()
 # UI = ShortBreakUI()
 # UI = LongBreakUI()

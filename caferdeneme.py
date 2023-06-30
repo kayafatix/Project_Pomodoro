@@ -66,6 +66,8 @@ class MainMenuUI(QDialog):
         super(MainMenuUI,self).__init__()
         loadUi("UI//mainMenu.ui",self)
 
+        self.addProjectButton.clicked.connect(self.add_new_Project)
+
         
 
     # SİLMEYİNİZ ----------------
@@ -86,7 +88,25 @@ class MainMenuUI(QDialog):
     # SİLMEYİNİZ ----------------
 
         # recipients_add = self.addRecipientInput.text() kullanılacak kod
+
+    # def add_subjects(self):
+    #     subject_name =self.addSubjectInput.text()
+    #     db = sqlite3.connect("Database//pomodoro_database.db")
+    #     im = db.cursor()
+    #     im.execute("INSERT INTO subjects(subject_name) VALUES(?)",(subject_name))
+    #     db.commit()
+    #     print(f"The subject named {subject_name} has been successfully registered.")
+
+    def add_new_Project(self):
         
+        db = sqlite3.connect("pomodoro_database.db")
+        im = db.cursor()
+                
+        project_name = self.addProjectInput.text()       
+        im.execute("INSERT INTO projects VALUES(?, ?)",(project_name))
+        db.commit()
+        print(f"The Project named {project_name} has been successfully added.")
+    
 class PomodoroUI(QDialog):
     def __init__(self):
         super(PomodoroUI,self).__init__()
@@ -178,13 +198,13 @@ class LongBreakUI(QDialog):
 
 
 app = QApplication(sys.argv)
-# UI = LoginUI() # This line determines which screen you will load at first
+UI = LoginUI() # This line determines which screen you will load at first
 
 
 # You can also try one of other screens to see them.
 # UI = MainMenuUI()
 # UI = PomodoroUI()
-UI = ShortBreakUI()
+# UI = ShortBreakUI()
 # UI = LongBreakUI()
 
 widget = QtWidgets.QStackedWidget()
