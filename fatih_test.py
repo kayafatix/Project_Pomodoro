@@ -76,18 +76,16 @@ class MainMenuUI(QDialog):
         
         db = sqlite3.connect("pomodoro_database.db")
         im = db.cursor()
+        im.execute("PRAGMA foreign_keys = ON")
+        
         project_name = self.addProjectInput.text()
+        user_id = '''
+    SELECT users.user_id, projects.project_name
+    FROM users
+    JOIN projects ON users.user_id = projects.user_id '''
         
-        cur = db.cursor()
         
-        login = cur.execute("SELECT user_id FROM users WHERE user_email='a@gmail.com'), )")
-        
-        print(cur.fetchall())
-        
-        # im.execute("PRAGMA foreign_keys = ON")
-            
-        im.execute("INSERT INTO projects VALUES(?, )",(project_name),)
-        
+        im.execute("INSERT INTO projects VALUES(?, ?)",(project_name, int(user_id)))
         db.commit()
         # print(login)
         # print(f"The Project named {project_name} has been successfully added.")
