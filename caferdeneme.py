@@ -28,7 +28,7 @@ class LoginUI(QDialog):
 
         
     def go_main_menu(self):
-        main_menu = MainMenuUI()
+        main_menu = MainMenuUI(self.login)
         widget.addWidget(main_menu)
         widget.setCurrentIndex(widget.currentIndex()+1)       
 
@@ -64,20 +64,19 @@ class LoginUI(QDialog):
                     self.errorTextLogin.setText("Sorry, your email address is not registered")
 
 class MainMenuUI(QDialog):
-    def __init__(self):
-        super(MainMenuUI,self).__init__()
-        loadUi("UI//mainMenu.ui",self)
-
+    def __init__(self, login):
+        super(MainMenuUI, self).__init__()
+        loadUi("UI//mainMenu.ui", self)
+        self.login = login
         self.addProjectButton.clicked.connect(self.add_new_Project)
-
         self.db = None
  
     def add_new_Project(self):
         project_name = self.addProjectInput.text()
-        print(LoginUI.user_name)
+        # print(LoginUI.user_name)
         with sqlite3.connect("Database//caferdatabase.db") as db:
             cursor = db.cursor()
-            cursor.execute("SELECT user_id FROM users WHERE user_email = ?",("problem"))
+            cursor.execute("SELECT user_id FROM users WHERE user_email = ?",(self.login,))
             user_id = cursor.fetchone()[0]
             im = db.cursor()
             im.execute("INSERT INTO projects(project_name, user_id) VALUES (?, ?)", (project_name, user_id))
