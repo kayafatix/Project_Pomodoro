@@ -50,9 +50,9 @@ class LoginUI(QDialog):
         im = db.cursor()
         im.execute("Select* FROM users")
 
-        # print(im.fetchall())
-
         login = self.emailInputLogin.text()
+        print(login)
+        
         for i in im.fetchall():
             im.execute("Select* FROM users")
             if login in i: 
@@ -61,6 +61,10 @@ class LoginUI(QDialog):
                 self.errorTextLogin.setText("")
             else:
                 self.errorTextLogin.setText("Sorry, your email address is not registered")  
+    def get_login(self):
+        login = self.emailInputLogin.text()
+        # return login
+        # print(str(login))
 
 
 
@@ -76,18 +80,15 @@ class MainMenuUI(QDialog):
         
         db = sqlite3.connect("pomodoro_database.db")
         im = db.cursor()
-        im.execute("PRAGMA foreign_keys = ON")
+        # im.execute("PRAGMA foreign_keys = ON")
         
         project_name = self.addProjectInput.text()
-        user_id = '''
-    SELECT users.user_id, projects.project_name
-    FROM users
-    JOIN projects ON users.user_id = projects.user_id '''
-        
-        
-        im.execute("INSERT INTO projects VALUES(?, ?)",(project_name, int(user_id)))
+        login = LoginUI.get_login
+        print(repr(login))
+
+        im.execute("INSERT INTO projects(project_name,user_email) VALUES(?,?)",(project_name,login))
         db.commit()
-        # print(login)
+       
         # print(f"The Project named {project_name} has been successfully added.")
         
 
