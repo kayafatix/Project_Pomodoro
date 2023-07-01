@@ -12,22 +12,24 @@ from PyQt5.uic import loadUi
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
 
+
 class LoginUI(QDialog):
     def __init__(self):
         super(LoginUI,self).__init__()
-        loadUi("./UI/login.ui",self)
+        loadUi("UI//login.ui",self)
 
-        # This is example of changing screen
         self.signUpButton.clicked.connect(self.sign_up_button)
         self.loginButton.clicked.connect(self.login_button)
         self.errorTextLogin.setText("")
         self.errorTextSignUp.setText("")
-
+        
     def go_main_menu(self):
         main_menu = MainMenuUI()
         widget.addWidget(main_menu)
         widget.setCurrentIndex(widget.currentIndex()+1)
+        # merhaba ben fatih
         
+
     def sign_up_button(self):
 
         name = self.nameInputSignUp.text()
@@ -58,15 +60,15 @@ class LoginUI(QDialog):
             elif login == "":
                 self.errorTextLogin.setText("")
             else:
-                self.errorTextLogin.setText("Sorry, your email address is not registered")
+                self.errorTextLogin.setText("Sorry, your email address is not registered")  
+
 
 
 class MainMenuUI(QDialog):
     def __init__(self):
         super(MainMenuUI,self).__init__()
         loadUi("./UI/mainMenu.ui",self)
-    
-        
+            
         self.addProjectButton.clicked.connect(self.add_new_Project)
         self.errorTextProjectLabel.setText("")
     
@@ -74,11 +76,19 @@ class MainMenuUI(QDialog):
         
         db = sqlite3.connect("pomodoro_database.db")
         im = db.cursor()
-                
-        project_name = self.addProjectInput.text()       
-        im.execute("INSERT INTO projects VALUES(?, ?)",(project_name))
+        im.execute("PRAGMA foreign_keys = ON")
+        
+        project_name = self.addProjectInput.text()
+        user_id = '''
+    SELECT users.user_id, projects.project_name
+    FROM users
+    JOIN projects ON users.user_id = projects.user_id '''
+        
+        
+        im.execute("INSERT INTO projects VALUES(?, ?)",(project_name, int(user_id)))
         db.commit()
-        print(f"The Project named {project_name} has been successfully added.")
+        # print(login)
+        # print(f"The Project named {project_name} has been successfully added.")
         
 
 class PomodoroUI(QDialog):
@@ -102,7 +112,7 @@ app = QApplication(sys.argv)
 UI = LoginUI() # This line determines which screen you will load at first
 
 # You can also try one of other screens to see them.
-    # UI = MainMenuUI()
+# UI = MainMenuUI()
     # UI = PomodoroUI()
     # UI = ShortBreakUI()
     # UI = LongBreakUI()
