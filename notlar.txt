@@ -1,0 +1,5 @@
+* date bilgileri eklencek (created_at ) User + Subject +.task...
+* Sing up yaparken 3 adet ikaz ekleyeceğiz.
+-> aynı mail ikazı
+-> başarılı giriş ikazı
+-> yanlış giriş ikazı
