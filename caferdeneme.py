@@ -9,7 +9,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.uic import loadUi
 
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QTime, QTimer
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
 
 class LoginUI(QDialog):
@@ -101,11 +101,64 @@ class MainMenuUI(QDialog):
                 db.commit()
 
 class PomodoroUI(QDialog):
-    def __init__(self):
+    def __init__(self,login):
         super(PomodoroUI,self).__init__()
         loadUi("UI//pomodoro.ui",self)
 
+        self.login = login
         self.goToMainMenuButton.clicked.connect(LoginUI.go_main_menu)
+        self.startStopButton.clicked.connect(self.start_button)
+
+        
+        self.sayac = 0
+
+    def start_button(self):
+
+        
+        with sqlite3.connect("Database//caferdatabase.db") as db:
+            cursor = db.cursor()
+            cursor.execute("SELECT user_id FROM users WHERE user_email = ?",(self.login,))
+            user_id = cursor.fetchone()[0]
+            
+
+        if self.sayac % 2 == 0:
+            with sqlite3.connect("Database//caferdatabase.db") as db:
+                im = db.cursor()
+                im.execute("INSERT INTO tracking_history(user_id,start_time) VALUES (?,?)", (user_id,PomodoroUI.show_time(self),))
+                db.commit()
+            self.sayac += 1
+        else:
+            with sqlite3.connect("Database//caferdatabase.db") as db:
+                im = db.cursor()
+                im.execute("UPDATE tracking_history SET end_time = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1) ", (PomodoroUI.show_time(self),))
+                db.commit()
+            self.sayac += 1
+
+
+
+    def show_time(self):
+
+        self.current_time = QTime.currentTime()
+        self.time_text = self.current_time.toString("hh:mm:ss")
+        return self.time_text
+        
+    
+    
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
 
 
 class ShortBreakUI(QDialog):
@@ -193,9 +246,9 @@ class LongBreakUI(QDialog):
 app = QApplication(sys.argv)
 # UI = LoginUI()
 # UI = MainMenuUI()
-# UI = PomodoroUI()
+UI = PomodoroUI("cafer@")
 # UI = ShortBreakUI()
-UI = LongBreakUI()
+# UI = LongBreakUI()
 
 widget = QtWidgets.QStackedWidget()
 widget.addWidget(UI)
