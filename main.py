@@ -35,7 +35,7 @@ class LoginUI(QDialog):
         self.user_email = self.emailInputSignUp.text()
 
         if "@" in self.user_email:
-            with sqlite3.connect("Database//caferdatabase.db") as db:
+            with sqlite3.connect("Database//pomodoro_database.db") as db:
                 im = db.cursor()
                 im.execute("INSERT INTO users(name,user_email) VALUES(?,?)",(self.name,self.user_email))
                 db.commit()
@@ -44,7 +44,7 @@ class LoginUI(QDialog):
             self.errorTextSignUp.setText("Sorry, your mail address must include '@' character")
 
     def login_button(self):
-        with sqlite3.connect("Database//caferdatabase.db") as db:
+        with sqlite3.connect("Database//pomodoro_database.db") as db:
             im = db.cursor()
             im.execute("SELECT * FROM users")
 
@@ -75,7 +75,7 @@ class MainMenuUI(QDialog):
     def add_new_Project(self):
         project_name = self.addProjectInput.text()
         # print(LoginUI.user_name)
-        with sqlite3.connect("Database//caferdatabase.db") as db:
+        with sqlite3.connect("Database//pomodoro_database.db") as db:
             cursor = db.cursor()
             cursor.execute("SELECT user_id FROM users WHERE user_email = ?",(self.login,))
             user_id = cursor.fetchone()[0]
@@ -88,7 +88,7 @@ class MainMenuUI(QDialog):
     def add_new_subject(self):
     
             subject_name = self.addSubjectInput.text()
-            with sqlite3.connect("Database//caferdatabase.db") as db:
+            with sqlite3.connect("Database//pomodoro_database.db") as db:
                 cursor = db.cursor()
                 cursor.execute("SELECT user_id FROM users WHERE user_email = ?",(self.login,))
                 user_id = cursor.fetchone()[user_id]
@@ -130,7 +130,7 @@ class PomodoroUI(QDialog):
         self.timer.start(1000)
         
 
-        with sqlite3.connect("Database//caferdatabase.db") as db:
+        with sqlite3.connect("Database//pomodoro_database.db") as db:
             self.cursor = db.cursor()
             self.cursor.execute("SELECT user_id FROM users WHERE user_email = ?", (self.login,))
             self.user_id = self.cursor.fetchone()[0]
@@ -157,7 +157,7 @@ class PomodoroUI(QDialog):
 
     def done_button(self):
 
-        with sqlite3.connect("Database//caferdatabase.db") as db:
+        with sqlite3.connect("Database//pomodoro_database.db") as db:
 
             self.im = db.cursor()
             self.im.execute("UPDATE tracking_history SET success = ?, end_time = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1)", ("+",PomodoroUI.show_time(self),))
@@ -291,9 +291,9 @@ class LongBreakUI(QDialog):
 
 
 app = QApplication(sys.argv)
-# UI = LoginUI()
+UI = LoginUI()
 # UI = MainMenuUI()
-UI = PomodoroUI("cafer@")
+# UI = PomodoroUI("cafer@")
 # UI = ShortBreakUI()
 # UI = LongBreakUI()
 
