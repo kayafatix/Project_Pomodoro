@@ -17,8 +17,6 @@ class LoginUI(QDialog):
     def __init__(self):
         super(LoginUI,self).__init__()
         loadUi("UI//login.ui",self)
-
-        
         self.signUpButton.clicked.connect(self.sign_up_button)
         self.loginButton.clicked.connect(self.login_button)
         self.errorTextLogin.setText("")
@@ -51,7 +49,6 @@ class LoginUI(QDialog):
             im.execute("SELECT * FROM users")
 
             self.login = self.emailInputLogin.text()
-            # print(self.login)
             for i in im.fetchall():
                 im.execute("SELECT * FROM users")
                 if self.login in i:
@@ -99,6 +96,11 @@ class MainMenuUI(QDialog):
                 im = db.cursor()
                 im.execute(" Insert into subjects (subjet_id,subject_name) VALUES (?,?)",(subject_name,user_id))
                 db.commit()
+
+    def start_pomodoro(self):
+        pomodoro_menu = PomodoroUI()
+        widget.addWidget(pomodoro_menu)
+        widget.setCurrentIndex(widget.currentIndex()+1) 
 
 class PomodoroUI(QDialog):
     def __init__(self,login):
