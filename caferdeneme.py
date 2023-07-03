@@ -179,7 +179,7 @@ UI = LoginUI() # This line determines which screen you will load at first
 
 
 # You can also try one of other screens to see them.
-# UI = MainMenuUI()
+#UI = MainMenuUI()
 # UI = PomodoroUI()
 # UI = ShortBreakUI()
 # UI = LongBreakUI()
