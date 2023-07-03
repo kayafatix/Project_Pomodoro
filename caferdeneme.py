@@ -108,31 +108,51 @@ class PomodoroUI(QDialog):
         self.login = login
         self.goToMainMenuButton.clicked.connect(LoginUI.go_main_menu)
         self.startStopButton.clicked.connect(self.start_button)
-
-        
+        self.doneButton.clicked.connect(self.done_button)
+ 
         self.sayac = 0
-
     def start_button(self):
-
         
+
         with sqlite3.connect("Database//caferdatabase.db") as db:
-            cursor = db.cursor()
-            cursor.execute("SELECT user_id FROM users WHERE user_email = ?",(self.login,))
-            user_id = cursor.fetchone()[0]
+            self.cursor = db.cursor()
+            self.cursor.execute("SELECT user_id FROM users WHERE user_email = ?", (self.login,))
+            self.user_id = self.cursor.fetchone()[0]
+
+            self.cursor = db.cursor()
+            self.cursor.execute("SELECT project_id FROM projects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)", (self.login,))
+            self.project_id = self.cursor.fetchone()[0]
+
+            self.cursor = db.cursor()
+            self.cursor.execute("SELECT subject_id FROM subjects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)", (self.login,))
+            self.subject_id = self.cursor.fetchone()[0]
+
+
+
+
+            if self.sayac % 2 == 0:
+                self.im = db.cursor()
+                
+                self.im.execute("INSERT INTO tracking_history(user_id, start_time, project_id, subject_id) VALUES (?, ?, ?, ?)", (self.user_id, PomodoroUI.show_time(self), self.project_id, self.subject_id,))
+                
+            else:
+                PomodoroUI.done_button(self)
+                self.sayac += 1
+                
             
 
-        if self.sayac % 2 == 0:
-            with sqlite3.connect("Database//caferdatabase.db") as db:
-                im = db.cursor()
-                im.execute("INSERT INTO tracking_history(user_id,start_time) VALUES (?,?)", (user_id,PomodoroUI.show_time(self),))
-                db.commit()
-            self.sayac += 1
-        else:
-            with sqlite3.connect("Database//caferdatabase.db") as db:
-                im = db.cursor()
-                im.execute("UPDATE tracking_history SET end_time = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1) ", (PomodoroUI.show_time(self),))
-                db.commit()
-            self.sayac += 1
+    def done_button(self):
+
+        with sqlite3.connect("Database//caferdatabase.db") as db:
+
+            self.im = db.cursor()
+            self.im.execute("UPDATE tracking_history SET end_time = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1)", (PomodoroUI.show_time(self),))
+
+        db.commit()
+
+
+
+    
 
 
 
