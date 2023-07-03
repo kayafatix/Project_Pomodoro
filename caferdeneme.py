@@ -51,7 +51,7 @@ class LoginUI(QDialog):
             im.execute("SELECT * FROM users")
 
             self.login = self.emailInputLogin.text()
-            print(self.login)
+            # print(self.login)
             for i in im.fetchall():
                 im.execute("SELECT * FROM users")
                 if self.login in i:
@@ -69,6 +69,10 @@ class MainMenuUI(QDialog):
         loadUi("UI//mainMenu.ui", self)
         self.login = login
         self.addProjectButton.clicked.connect(self.add_new_Project)
+
+        self.addSubjectButton.clicked.connect(self.add_new_subject)
+        self.errorTextSubjectLabel.setText("")
+
         self.db = None
  
     def add_new_Project(self):
@@ -83,6 +87,18 @@ class MainMenuUI(QDialog):
             db.commit()
 
         print(f"The Project named {project_name} has been successfully added.")
+
+    def add_new_subject(self):
+    
+            subject_name = self.addSubjectInput.text()
+            with sqlite3.connect("Database//caferdatabase.db") as db:
+                cursor = db.cursor()
+                cursor.execute("SELECT user_id FROM users WHERE user_email = ?",(self.login,))
+                user_id = cursor.fetchone()[user_id]
+                cursor.execute("SELECT project_id FROM projects WHERE user_id = ?",(self.login,))
+                im = db.cursor()
+                im.execute(" Insert into subjects (subjet_id,subject_name) VALUES (?,?)",(subject_name,user_id))
+                db.commit()
 
 class PomodoroUI(QDialog):
     def __init__(self):
@@ -175,14 +191,11 @@ class LongBreakUI(QDialog):
 
 
 app = QApplication(sys.argv)
-UI = LoginUI() # This line determines which screen you will load at first
-
-
-# You can also try one of other screens to see them.
-#UI = MainMenuUI()
+# UI = LoginUI()
+# UI = MainMenuUI()
 # UI = PomodoroUI()
 # UI = ShortBreakUI()
-# UI = LongBreakUI()
+UI = LongBreakUI()
 
 widget = QtWidgets.QStackedWidget()
 widget.addWidget(UI)
