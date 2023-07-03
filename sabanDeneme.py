@@ -13,113 +13,93 @@ from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
 
 class LoginUI(QDialog):
+
     def __init__(self):
         super(LoginUI,self).__init__()
         loadUi("UI//login.ui",self)
 
+        
         self.signUpButton.clicked.connect(self.sign_up_button)
         self.loginButton.clicked.connect(self.login_button)
         self.errorTextLogin.setText("")
         self.errorTextSignUp.setText("")
         
-    def go_main_menu(self):
-        main_menu = MainMenuUI()
-        widget.addWidget(main_menu)
-        widget.setCurrentIndex(widget.currentIndex()+1)
-        # merhaba ben fatih
+        self.db = None
+
         
+    def go_main_menu(self):
+        main_menu = MainMenuUI(self.login)
+        widget.addWidget(main_menu)
+        widget.setCurrentIndex(widget.currentIndex()+1)       
 
     def sign_up_button(self):
+        self.name = self.nameInputSignUp.text()
+        self.user_email = self.emailInputSignUp.text()
 
-        name = self.nameInputSignUp.text()
-        user_email = self.emailInputSignUp.text()
-
-        if "@" in user_email:
-            db = sqlite3.connect("Database//pomodoro_database.db")
-            im = db.cursor()
-            im.execute("INSERT INTO users(name,user_email) VALUES(?,?)",(name,user_email))
-            db.commit()
-            print(f"The user named {name} has been successfully registered.")
+        if "@" in self.user_email:
+            with sqlite3.connect("Database//caferdatabase.db") as db:
+                im = db.cursor()
+                im.execute("INSERT INTO users(name,user_email) VALUES(?,?)",(self.name,self.user_email))
+                db.commit()
+                print(f"The user named {self.name} has been successfully registered.")
         else:
             self.errorTextSignUp.setText("Sorry, your mail address must include '@' character")
 
     def login_button(self):
+        with sqlite3.connect("Database//caferdatabase.db") as db:
+            im = db.cursor()
+            im.execute("SELECT * FROM users")
 
-        db = sqlite3.connect("Database//pomodoro_database.db")
-        im = db.cursor()
-        im.execute("Select* FROM users")
-
-        # print(im.fetchall())
-
-        login = self.emailInputLogin.text()
-        for i in im.fetchall():
-            im.execute("Select* FROM users")
-            if login in i: 
+            self.login = self.emailInputLogin.text()
+            print(self.login)
+            for i in im.fetchall():
+                im.execute("SELECT * FROM users")
+                if self.login in i:
                     self.go_main_menu()
-            elif login == "":
-                self.errorTextLogin.setText("")
+                    break
             else:
-                self.errorTextLogin.setText("Sorry, your email address is not registered")  
+                if self.login == "":
+                    self.errorTextLogin.setText("")
+                else:
+                    self.errorTextLogin.setText("Sorry, your email address is not registered")
 
 class MainMenuUI(QDialog):
-    def __init__(self):
-        super(MainMenuUI,self).__init__()
-        loadUi("UI//mainMenu.ui",self)
+    def __init__(self, login):
+        super(MainMenuUI, self).__init__()
+        loadUi("UI//mainMenu.ui", self)
+        self.login = login
+        self.addProjectButton.clicked.connect(self.add_new_Project)
+        self.db = None
+
         self.addSubjectButton.clicked.connect(self.add_subjects)
-        self.errorTextSubjectLabel.setText("")
+        self.errorTextSubjectLabel.setText("")  
+ 
+    def add_new_Project(self):
+        project_name = self.addProjectInput.text()
+        # print(LoginUI.user_name)
+        with sqlite3.connect("Database//caferdatabase.db") as db:
+            cursor = db.cursor()
+            cursor.execute("SELECT user_id FROM users WHERE user_email = ?",(self.login,))
+            user_id = cursor.fetchone()[0]
+            im = db.cursor()
+            im.execute("INSERT INTO projects(project_name, user_id) VALUES (?, ?)", (project_name, user_id))
+            db.commit()
 
-    def add_subjects(self):
-
-        subject_name =self.addSubjectInput.text()
-        db = sqlite3.connect("Database//pomodoro_database.db")
-        im = db.cursor()
-        im.execute("INSERT INTO subjects(subject_name) VALUES(?)",(subject_name))
-        db.commit()
-        print(f"The subject named {subject_name} has been successfully registered.")
-        
-         
-    # subject= self.addSubjectInput.text()
-    # selected_item = self.database.db.currentText()
-    # user_input = self.addSubjectInput.text()
-
-    #     try:
-    #         connection = sqlite3.connect("Database//pomodoro_database.db")
-    #         cursor = connection.cursor()
-    #         cursor.execute("CREATE TABLE IF NOT EXISTS items (dropbox_item TEXT, user_input TEXT)")
-    #         cursor.execute("INSERT INTO items (dropbox_item, user_input) VALUES (?, ?)", (selected_item, user_input))
-    #         connection.commit()
-    #         connection.close()
-    #         print("Veritabanına kaydedildi!")
-    #     except sqlite3.Error as e:
-    #         print(f"Veritabanı hatası: {e}")
-
-    #     self.combo_box.setCurrentIndex(0)
-    #     self.input_edit.clear()
+        print(f"The Project named {project_name} has been successfully added.")
 
 
+        def add_subjects(self):
+    
+            subject_name = self.addSubjectInput.text()
+            with sqlite3.connect("Database//caferdatabase.db") as db:
+                cursor = db.cursor()
+                cursor.execute("SELECT user_id FROM users WHERE user_email = ?",(self.login,))
+                user_id = cursor.fetchone()[user_id]
+                cursor.execute("SELECT project_id,project_name FROM projects WHERE user_email = ?",(self.login,))
+                im = db.cursor()
+                im.execute(" Insert into subjects (subjet_id,subject_name) VALUES (?,?)",(subject_name,user_id))
+                db.commit()
 
-
-        
-
-    # SİLMEYİNİZ ----------------
-    # self.addRecipientButton.clicked.connect(self.add_button)
-    # def add_button(self):
-
-    #     recipients_email = self.addRecipientInput.text()
-    #     # print(email)
-        
-    #     if "@" in recipients_email:
-    #         db = sqlite3.connect("Database//pomodoro_database.db")
-    #         im = db.cursor()
-    #         im.execute("INSERT INTO recipients(recipients_email) VALUES(?)",(recipients_email))
-    #         db.commit()
-    #         print(f"{recipients_email} has been successfully added")
-    #     else:
-    #         self.errorTextRecipientsEmailLabel.setText("Sorry, your mail address must include '@' character")
-    # SİLMEYİNİZ ----------------
-
-        # recipients_add = self.addRecipientInput.text() kullanılacak kod
-        
 class PomodoroUI(QDialog):
     def __init__(self):
         super(PomodoroUI,self).__init__()
@@ -211,14 +191,14 @@ class LongBreakUI(QDialog):
 
 
 app = QApplication(sys.argv)
-# UI = LoginUI() # This line determines which screen you will load at first
+UI = LoginUI() # This line determines which screen you will load at first
 
 
 # You can also try one of other screens to see them.
-UI = MainMenuUI()
-#UI = PomodoroUI()
-#UI = ShortBreakUI()
-#UI = LongBreakUI()
+#UI = MainMenuUI()
+# UI = PomodoroUI()
+# UI = ShortBreakUI()
+# UI = LongBreakUI()
 
 widget = QtWidgets.QStackedWidget()
 widget.addWidget(UI)
