@@ -9,7 +9,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.uic import loadUi
 
-from PyQt5.QtCore import QTime, QTimer
+from PyQt5.QtCore import QTime, QTimer, QDate, Qt
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
 
 class LoginUI(QDialog):
@@ -109,9 +109,23 @@ class PomodoroUI(QDialog):
         self.goToMainMenuButton.clicked.connect(LoginUI.go_main_menu)
         self.startStopButton.clicked.connect(self.start_button)
         self.doneButton.clicked.connect(self.done_button)
- 
+
+
+
+        self.count_minutes = 0  
+        self.count_seconds = 5
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_count)
+
+
+
+
         self.sayac = 0
     def start_button(self):
+
+        self.startStopButton.setEnabled(False)
+
+        self.timer.start(1000)
         
 
         with sqlite3.connect("Database//caferdatabase.db") as db:
@@ -128,12 +142,10 @@ class PomodoroUI(QDialog):
             self.subject_id = self.cursor.fetchone()[0]
 
 
-
-
             if self.sayac % 2 == 0:
                 self.im = db.cursor()
                 
-                self.im.execute("INSERT INTO tracking_history(user_id, start_time, project_id, subject_id) VALUES (?, ?, ?, ?)", (self.user_id, PomodoroUI.show_time(self), self.project_id, self.subject_id,))
+                self.im.execute("INSERT INTO tracking_history(user_id, start_time, project_id, subject_id, date) VALUES (?, ?, ?, ?, ?)", (self.user_id, PomodoroUI.show_time(self), self.project_id, self.subject_id,PomodoroUI.show_date(self),))
                 
             else:
                 PomodoroUI.done_button(self)
@@ -146,14 +158,13 @@ class PomodoroUI(QDialog):
         with sqlite3.connect("Database//caferdatabase.db") as db:
 
             self.im = db.cursor()
-            self.im.execute("UPDATE tracking_history SET end_time = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1)", (PomodoroUI.show_time(self),))
-
+            self.im.execute("UPDATE tracking_history SET success = ?, end_time = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1)", ("+",PomodoroUI.show_time(self),))
+            self.timer.stop()
+            self.accept()
+            shortbreak = ShortBreakUI()
+            widget.addWidget(shortbreak)
+            widget.setCurrentIndex(widget.currentIndex()+1)
         db.commit()
-
-
-
-    
-
 
 
     def show_time(self):
@@ -161,15 +172,29 @@ class PomodoroUI(QDialog):
         self.current_time = QTime.currentTime()
         self.time_text = self.current_time.toString("hh:mm:ss")
         return self.time_text
-        
     
     
-
-
-
+    def update_count(self):
+        if self.count_minutes == 0 and self.count_seconds == 0:
+            self.timer.stop()
+            self.accept()
+            shortbreak = ShortBreakUI()
+            widget.addWidget(shortbreak)
+            widget.setCurrentIndex(widget.currentIndex()+1)
+            PomodoroUI.done_button(self)
+        else:
+            if self.count_seconds == 0:
+                self.count_minutes -= 1
+                self.count_seconds = 59
+            else:
+                self.count_seconds -= 1
+            self.timeLabel.setText(f"{self.count_minutes:01d}:{self.count_seconds:02d}")
         
-
-
+    
+    def show_date(self):
+        self.current_date = QDate.currentDate()
+        self.date_text = self.current_date.toString("dd-MM-yyyy")
+        return self.date_text
 
 
 
