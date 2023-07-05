@@ -790,7 +790,7 @@ border-radius:10px;
       <property name="styleSheet">
        <string notr="true"/>
       </property>
-      <item>
+      <!-- <item>
        <property name="text">
         <string>project01</string>
        </property>
@@ -804,7 +804,7 @@ border-radius:10px;
        <property name="text">
         <string>project03</string>
        </property>
-      </item>
+      </item> -->
      </widget>
      <widget class="QPushButton" name="addSubjectButton">
       <property name="geometry">
