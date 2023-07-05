@@ -81,6 +81,7 @@ class LoginUI(QDialog):
 
 
 class MainMenuUI(QDialog):
+    # addSubjectOnProjectCombo 
     def __init__(self, login):
         super(MainMenuUI, self).__init__()
         loadUi("UI//mainMenu.ui", self)
@@ -89,9 +90,41 @@ class MainMenuUI(QDialog):
         self.startPomodoroButton.clicked.connect(self.start_pomodoro)
         self.addSubjectButton.clicked.connect(self.add_new_subject)
         self.errorTextSubjectLabel.setText("")
-
+        
+        
         self.db = None
- 
+
+
+        with sqlite3.connect("Database//caferdatabase.db") as db:
+                        
+            cursor = db.cursor()
+            cursor.execute("SELECT project_name FROM projects")
+            add = cursor.fetchall()[0][0]
+            self.addSubjectOnProjectCombo.addItem(add)
+            # print(add)
+            projects = []
+            cursor1 = db.cursor()
+            cursor1.execute("SELECT project_name FROM projects")
+            
+            for i in range(1,len(cursor1.fetchall())):
+                cursor1 = db.cursor()
+                cursor1.execute("SELECT project_name FROM projects")
+                
+                add1 = cursor1.fetchall()[i][0]
+                projects.append(add1)
+
+            self.addSubjectOnProjectCombo.addItems(projects)
+            db.commit()
+            # print(projects)
+
+            combotext = self.addSubjectOnProjectCombo.currentText()
+            
+
+
+
+
+
+
     def add_new_Project(self):
         project_name = self.addProjectInput.text()
         # print(LoginUI.user_name)
@@ -111,19 +144,23 @@ class MainMenuUI(QDialog):
             with sqlite3.connect("Database//caferdatabase.db") as db:
                 cursor = db.cursor()
                 cursor.execute("SELECT user_id FROM users WHERE user_email = ?",(self.login,))
-                user_id = cursor.fetchone()[user_id]
-                cursor.execute("SELECT project_id FROM projects WHERE user_id = ?",(self.login,))
+                user_id = cursor.fetchone()[0]
+
+
+                combotext = self.addSubjectOnProjectCombo.currentText()
+                cursor1 = db.cursor()
+                cursor1.execute("SELECT project_id FROM projects WHERE project_name = ?",(combotext,))
+                project_id = cursor1.fetchone()[0]
+
+                
                 im = db.cursor()
-                im.execute(" Insert into subjects (subjet_id,subject_name) VALUES (?,?)",(subject_name,user_id))
+                im.execute("INSERT INTO subjects(subject_name,user_id,project_id) VALUES (?,?,?)",(subject_name,user_id,project_id,))
                 db.commit()
 
     def start_pomodoro(self):
         pomodoro_menu = PomodoroUI(self.login)
         widget.addWidget(pomodoro_menu)
         widget.setCurrentIndex(widget.currentIndex()+1) 
-
-
-
 
 
 
@@ -352,7 +389,7 @@ class LongBreakUI(QDialog):
 
 app = QApplication(sys.argv)
 UI = LoginUI()
-# UI = MainMenuUI()
+# UI = MainMenuUI("c@")
 # UI = PomodoroUI()
 # UI = ShortBreakUI()
 # UI = LongBreakUI()
