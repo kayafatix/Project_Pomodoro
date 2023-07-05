@@ -98,17 +98,17 @@ class MainMenuUI(QDialog):
         with sqlite3.connect("Database//caferdatabase.db") as db:
                         
             cursor = db.cursor()
-            cursor.execute("SELECT project_name FROM projects")
+            cursor.execute("SELECT project_name FROM projects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)", (self.login,))
             add = cursor.fetchall()[0][0]
             self.addSubjectOnProjectCombo.addItem(add)
             # print(add)
             projects = []
             cursor1 = db.cursor()
-            cursor1.execute("SELECT project_name FROM projects")
+            cursor1.execute("SELECT project_name FROM projects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)", (self.login,))
             
             for i in range(1,len(cursor1.fetchall())):
                 cursor1 = db.cursor()
-                cursor1.execute("SELECT project_name FROM projects")
+                cursor1.execute("SELECT project_name FROM projects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)", (self.login,))
                 
                 add1 = cursor1.fetchall()[i][0]
                 projects.append(add1)
@@ -117,7 +117,7 @@ class MainMenuUI(QDialog):
             db.commit()
             # print(projects)
 
-            combotext = self.addSubjectOnProjectCombo.currentText()
+            # combotext = self.addSubjectOnProjectCombo.currentText()
             
 
 
@@ -139,7 +139,6 @@ class MainMenuUI(QDialog):
         print(f"The Project named {project_name} has been successfully added.")
 
     def add_new_subject(self):
-    
             subject_name = self.addSubjectInput.text()
             with sqlite3.connect("Database//caferdatabase.db") as db:
                 cursor = db.cursor()
@@ -155,7 +154,7 @@ class MainMenuUI(QDialog):
                 
                 im = db.cursor()
                 im.execute("INSERT INTO subjects(subject_name,user_id,project_id) VALUES (?,?,?)",(subject_name,user_id,project_id,))
-                db.commit()
+            db.commit()
 
     def start_pomodoro(self):
         pomodoro_menu = PomodoroUI(self.login)
