@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.uic import loadUi
 
 from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout, QComboBox
 
 
 class LoginUI(QDialog):
@@ -86,6 +86,18 @@ class MainMenuUI(QDialog):
         self.addProjectButton.clicked.connect(self.add_new_Project)
         self.db = None
         
+        self.selectProjectCombo = QComboBox(self)
+        data = ['Project 11', 'Project 22', 'Project 33']    
+        self.selectProjectCombo.addItems(data)  
+        
+        self.get_projects()
+        
+        # self.add_data_to_combobox()
+        
+    # def add_data_to_combobox(self):
+    #     data = ['Project 11', 'Project 22', 'Project 33']
+
+    #     self.selectProjectCombo.addItems(data)  
              
         
         # self.setWindowTitle("Projects")
@@ -116,16 +128,20 @@ class MainMenuUI(QDialog):
             im = db.cursor()
             im.execute("INSERT INTO projects(project_name, user_id) VALUES (?, ?)", (project_name, user_id))
             db.commit()
-
+        
         print(f"The Project named {project_name} has been successfully added.")
     
     
     
-    def get_projects(self, project_name):
-        self.cursor.execute(f"SELECT {project_name} FROM projects")
-        all_projects = self.cursor.fetchall()
-        my_projects = [veri[0] for veri in all_projects]
-        return my_projects
+    def get_projects(self):
+        with sqlite3.connect("pomodoro_database.db") as db:
+            cursor = db.cursor()
+            cursor.execute(f"SELECT * FROM projects")
+            
+            all_projects = self.cursor.fetchall()
+            # my_projects = [veri[0] for veri in all_projects]
+            # db.commit()
+            print(all_projects)
     
     # def add_new_subject(self):
     #     subject_name = self.addSubjectInput.text()
