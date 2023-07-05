@@ -12,13 +12,18 @@ from PyQt5.uic import loadUi
 from PyQt5.QtCore import QTime, QTimer, QDate, Qt
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
 
+po_session = 0
+
+def sayac():
+    global po_session 
+    po_session += 1
+    print(po_session)
+
 class LoginUI(QDialog):
 
     def __init__(self):
         super(LoginUI,self).__init__()
         loadUi("UI//login.ui",self)
-
-        
         self.signUpButton.clicked.connect(self.sign_up_button)
         self.loginButton.clicked.connect(self.login_button)
         self.errorTextLogin.setText("")
@@ -51,7 +56,6 @@ class LoginUI(QDialog):
             im.execute("SELECT * FROM users")
 
             self.login = self.emailInputLogin.text()
-            # print(self.login)
             for i in im.fetchall():
                 im.execute("SELECT * FROM users")
                 if self.login in i:
@@ -63,13 +67,26 @@ class LoginUI(QDialog):
                 else:
                     self.errorTextLogin.setText("Sorry, your email address is not registered")
 
+
+
+
+
+
+
+# =================================================================
+
+
+
+
+
+
 class MainMenuUI(QDialog):
     def __init__(self, login):
         super(MainMenuUI, self).__init__()
         loadUi("UI//mainMenu.ui", self)
         self.login = login
         self.addProjectButton.clicked.connect(self.add_new_Project)
-
+        self.startPomodoroButton.clicked.connect(self.start_pomodoro)
         self.addSubjectButton.clicked.connect(self.add_new_subject)
         self.errorTextSubjectLabel.setText("")
 
@@ -100,16 +117,32 @@ class MainMenuUI(QDialog):
                 im.execute(" Insert into subjects (subjet_id,subject_name) VALUES (?,?)",(subject_name,user_id))
                 db.commit()
 
+    def start_pomodoro(self):
+        pomodoro_menu = PomodoroUI(self.login)
+        widget.addWidget(pomodoro_menu)
+        widget.setCurrentIndex(widget.currentIndex()+1) 
+
+
+
+
+
+
+
+# =================================================================
+
+
+
 class PomodoroUI(QDialog):
+
     def __init__(self,login):
         super(PomodoroUI,self).__init__()
         loadUi("UI//pomodoro.ui",self)
 
+        
         self.login = login
-        self.goToMainMenuButton.clicked.connect(LoginUI.go_main_menu)
+        self.goToMainMenuButton.clicked.connect(UI.go_main_menu)
         self.startStopButton.clicked.connect(self.start_button)
         self.doneButton.clicked.connect(self.done_button)
-
 
 
         self.count_minutes = 0  
@@ -119,11 +152,16 @@ class PomodoroUI(QDialog):
 
 
 
-
+        # self.pomodoro_session = 0
         self.sayac = 0
-    def start_button(self):
 
+
+    def start_button(self):
         self.startStopButton.setEnabled(False)
+
+        # sayac()
+        # self.pomodoro_session += 1
+        # print(self.pomodoro_session)
 
         self.timer.start(1000)
         
@@ -161,10 +199,18 @@ class PomodoroUI(QDialog):
             self.im.execute("UPDATE tracking_history SET success = ?, end_time = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1)", ("+",PomodoroUI.show_time(self),))
             self.timer.stop()
             self.accept()
-            shortbreak = ShortBreakUI()
+            
+        db.commit()
+
+        if po_session == 4:
+                longbreak = LongBreakUI(self.login)
+                widget.addWidget(longbreak)
+                widget.setCurrentIndex(widget.currentIndex()+1)
+        else:
+            shortbreak = ShortBreakUI(self.login)
             widget.addWidget(shortbreak)
             widget.setCurrentIndex(widget.currentIndex()+1)
-        db.commit()
+            sayac()
 
 
     def show_time(self):
@@ -178,10 +224,16 @@ class PomodoroUI(QDialog):
         if self.count_minutes == 0 and self.count_seconds == 0:
             self.timer.stop()
             self.accept()
-            shortbreak = ShortBreakUI()
-            widget.addWidget(shortbreak)
-            widget.setCurrentIndex(widget.currentIndex()+1)
-            PomodoroUI.done_button(self)
+            if po_session == 4:
+                longBreak = LongBreakUI(self.login)
+                widget.addWidget(longBreak)
+                widget.setCurrentIndex(widget.currentIndex()+1)
+            else:
+                shortbreak = ShortBreakUI(self.login)
+                widget.addWidget(shortbreak)
+                widget.setCurrentIndex(widget.currentIndex()+1)
+                sayac()
+                PomodoroUI.done_button(self)
         else:
             if self.count_seconds == 0:
                 self.count_minutes -= 1
@@ -199,7 +251,7 @@ class PomodoroUI(QDialog):
 
 
 
-
+# =================================================================
 
 
 
@@ -207,16 +259,17 @@ class PomodoroUI(QDialog):
 
 
 class ShortBreakUI(QDialog):
-    def __init__(self):
+    def __init__(self,login):
         super(ShortBreakUI,self).__init__()
         loadUi("UI//shortBreak.ui",self)
 
-        self.goToMainMenuButton.clicked.connect(LoginUI.go_main_menu)
+        self.login = login
+        self.goToMainMenuButton.clicked.connect(UI.go_main_menu)
         self.startButton.clicked.connect(self.short_break)
         self.skipButton.clicked.connect(self.skip_button)
 
-        self.count_minutes = 5  
-        self.count_seconds = 0
+        self.count_minutes = 0  
+        self.count_seconds = 4
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_count)
         
@@ -227,7 +280,7 @@ class ShortBreakUI(QDialog):
         if self.count_minutes == 0 and self.count_seconds == 0:
             self.timer.stop()
             self.accept()
-            pomodoro_menu = PomodoroUI()
+            pomodoro_menu = PomodoroUI(self.login)
             widget.addWidget(pomodoro_menu)
             widget.setCurrentIndex(widget.currentIndex()+1)
         else:
@@ -240,20 +293,29 @@ class ShortBreakUI(QDialog):
 
     def skip_button(self):
 
-        pomodoro_menu = PomodoroUI()
+        pomodoro_menu = PomodoroUI(self.login)
         widget.addWidget(pomodoro_menu)
         widget.setCurrentIndex(widget.currentIndex()+1)         
 
 
 
 
+
+
+# =================================================================
+
+
+
+
+
+
 class LongBreakUI(QDialog):
-    def __init__(self):
+    def __init__(self,login):
         super(LongBreakUI,self).__init__()
         loadUi("UI//longBreak.ui",self)
 
-        self.goToMainMenuButton.clicked.connect(LoginUI.go_main_menu)
-
+        self.login = login
+        self.goToMainMenuButton.clicked.connect(UI.go_main_menu)
         self.startButton.clicked.connect(self.long_break)
         self.skipButton.clicked.connect(self.skip_button)
 
@@ -289,9 +351,9 @@ class LongBreakUI(QDialog):
 
 
 app = QApplication(sys.argv)
-# UI = LoginUI()
+UI = LoginUI()
 # UI = MainMenuUI()
-UI = PomodoroUI("cafer@")
+# UI = PomodoroUI()
 # UI = ShortBreakUI()
 # UI = LongBreakUI()
 
