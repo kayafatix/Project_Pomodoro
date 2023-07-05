@@ -30,7 +30,7 @@ class LoginUI(QDialog):
         self.errorTextSignUp.setText("")
         
         self.db = None
-
+        "merhaba saban abi"
         
     def go_main_menu(self):
         main_menu = MainMenuUI(self.login)
