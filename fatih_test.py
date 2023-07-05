@@ -85,6 +85,26 @@ class MainMenuUI(QDialog):
         self.login = login
         self.addProjectButton.clicked.connect(self.add_new_Project)
         self.db = None
+        
+             
+        
+        # self.setWindowTitle("Projects")
+        
+        # self.connection = sqlite3.connect("pomodoro_database.db")
+        # self.cursor = self.connection.cursor()
+        
+        # widget = QWidget()
+        # layout = QVBoxLayout()
+        # widget.setLayout(layout)
+        
+        # projects = self.get_projects("project_name")
+        # combobox = self.selectProjectCombo()
+        # # combobox.addItems(projects)
+        # layout.addWidget(combobox)
+        
+        # self.setCentralWidget(widget)
+    
+    
  
     def add_new_Project(self):
         project_name = self.addProjectInput.text()
@@ -98,6 +118,27 @@ class MainMenuUI(QDialog):
             db.commit()
 
         print(f"The Project named {project_name} has been successfully added.")
+    
+    
+    
+    def get_projects(self, project_name):
+        self.cursor.execute(f"SELECT {project_name} FROM projects")
+        all_projects = self.cursor.fetchall()
+        my_projects = [veri[0] for veri in all_projects]
+        return my_projects
+    
+    # def add_new_subject(self):
+    #     subject_name = self.addSubjectInput.text()
+    #     with sqlite3.connect("pomodoro_database.db") as db:
+    #         cursor = db.cursor()
+    #         cursor.execute("SELECT user_id FROM users WHERE user_email = ?",(self.login,))
+    #         user_id = cursor.fetchone()[0]
+    #         cursor.execute("SELECT project_id FROM projects WHERE user_id = ?",(self.login,))
+    #         project_id = cursor.fetchone()[0]
+    #         im = db.cursor()
+    #         im.execute(" INSERT INTO subjects (subject_name, user_id, project_id) VALUES (?,?,?)",(subject_name,user_id, project_id))
+    #         db.commit()
+    
         
 
 class PomodoroUI(QDialog):
