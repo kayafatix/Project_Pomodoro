@@ -38,35 +38,64 @@ class LoginUI(QDialog):
         widget.addWidget(main_menu)
         widget.setCurrentIndex(widget.currentIndex()+1)       
 
+    # def sign_up_button(self):
+    #     self.name = self.nameInputSignUp.text()
+    #     self.user_email = self.emailInputSignUp.text()
+
+    #     if "@" in self.user_email:
+    #         with sqlite3.connect("Database//caferdatabase.db") as db:
+    #             im = db.cursor()
+    #             im.execute("INSERT INTO users(name,user_email) VALUES(?,?)",(self.name,self.user_email))
+            
+    #             print(f"The user named {self.name} has been successfully registered.")
+    #     else:
+    #         self.errorTextSignUp.setText("Sorry, your mail address must include '@' character")
     def sign_up_button(self):
         self.name = self.nameInputSignUp.text()
         self.user_email = self.emailInputSignUp.text()
 
-        if "@" in self.user_email:
+        if self.name == "" or self.user_email == "":
+            self.errorTextSignUp.setText("'name' or 'email' fields cannot be left blank!")
+            
+        elif "@" in self.user_email:
             with sqlite3.connect("Database//caferdatabase.db") as db:
                 im = db.cursor()
-                im.execute("INSERT INTO users(name,user_email) VALUES(?,?)",(self.name,self.user_email))
-            
-                print(f"The user named {self.name} has been successfully registered.")
+                im.execute("SELECT * FROM users")
+                e_mail=[]
+                for i in im.fetchall():
+                    e_mail.append(i[2])
+                # print( e_mail)
+                if self.user_email in e_mail:
+                    self.errorTextSignUp.setText(f"The user '{self.user_email}' is already exist.")
+                else:
+                    im.execute("INSERT INTO users(name,user_email) VALUES(?,?)",(self.name,self.user_email))
+                    db.commit()
+                    self.errorTextSignUp.setText(f"The user '{self.user_email}' has been successfully registered.")
+                    self.nameInputSignUp.clear()
+                    self.emailInputSignUp.clear()
         else:
             self.errorTextSignUp.setText("Sorry, your mail address must include '@' character")
-
+        
     def login_button(self):
+        
         with sqlite3.connect("Database//caferdatabase.db") as db:
-            im = db.cursor()
+            
+            im = db.cursor()    
             im.execute("SELECT * FROM users")
-
             self.login = self.emailInputLogin.text()
+            
             for i in im.fetchall():
                 im.execute("SELECT * FROM users")
-                if self.login in i:
+                # print(i)
+                if self.login == "" or "@" not in self.login:
+                    self.errorTextLogin.setText("For login please enter a valid email address!")
+                
+                elif self.login in i:
                     self.go_main_menu()
-                    break
-            else:
-                if self.login == "":
-                    self.errorTextLogin.setText("")
+                    break                               
                 else:
-                    self.errorTextLogin.setText("Sorry, your email address is not registered")
+                    self.errorTextLogin.setText("Sorry, your email address is not registered!")
+
 
 
 
@@ -75,6 +104,7 @@ class LoginUI(QDialog):
 
 
     # =================================================================
+
 
 
 
@@ -90,10 +120,12 @@ class MainMenuUI(QDialog):
         self.addProjectButton.clicked.connect(self.add_new_Project)
         self.startPomodoroButton.clicked.connect(self.start_pomodoro)
         self.addSubjectButton.clicked.connect(self.add_new_subject)
+        self.projectDeleteButton.clicked.connect(self.delete_project)
+
         self.errorTextSubjectLabel.setText("")
         self.selectProjectCombo.currentTextChanged.connect(self.updateSubjectCombo)
         
-        self.db = None
+        # self.db = None
 
     # ---------------------------------------------------------------- ProjectComboBox1 ----------------------------------------------------------------
         query = "SELECT project_name FROM projects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)"
@@ -101,9 +133,9 @@ class MainMenuUI(QDialog):
             cursor = db.cursor()
             cursor.execute(query, (self.login,))
             projects = cursor.fetchall()
-            for i in projects:
+            for i in projects: 
                 self.addSubjectOnProjectCombo.addItem(i[0])
-      
+
     # ---------------------------------------------------------------- ProjectComboBox1 ----------------------------------------------------------------
 
 
@@ -120,11 +152,11 @@ class MainMenuUI(QDialog):
             for i in projects1:
                 # print(i)
                 self.selectProjectCombo.addItem(i[0])
-     
+                self.projectDeleteCombo.addItem(i[0])
+
     # ---------------------------------------------------------------- ProjectComboBox2 ----------------------------------------------------------------
         
         
-
 
 
 
@@ -158,7 +190,8 @@ class MainMenuUI(QDialog):
             user_id = cursor.fetchone()[0]
             im = db.cursor()
             im.execute("INSERT INTO projects(project_name, user_id) VALUES (?, ?)", (project_name, user_id))
-      
+        UI.go_main_menu()
+
 
         print(f"The Project named {project_name} has been successfully added.")
 
@@ -182,33 +215,29 @@ class MainMenuUI(QDialog):
 
         print(f"The Subject named {combotext} has been successfully added.")
 
-    def start_pomodoro(self):
-
-        # combotext = self.selectProjectCombo.currentText()
-        # combotext1 = self.selectSubjectCombo.currentText()
-
-        # with sqlite3.connect("Database//caferdatabase.db") as db:
-
-        #     cursor = db.cursor()
-        #     cursor.execute("SELECT user_id FROM users WHERE user_email = ?",(self.login,))
-        #     user_id = cursor.fetchone()[0]            
-            
-        #     cursor1 = db.cursor()
-        #     cursor1.execute("SELECT project_id FROM projects WHERE project_name = ?",(combotext,))
-        #     project_id = cursor1.fetchone()[0]
-
-        #     cursor1 = db.cursor()
-        #     cursor1.execute("SELECT subject_id FROM subjects WHERE subject_name = ?",(combotext1,))
-        #     subject_id = cursor1.fetchone()[0]
-
-        #     im = db.cursor()
-        #     im.execute("INSERT INTO tasks(user_id,project_id,subject_id) VALUES (?,?,?)",(user_id,project_id,subject_id,))
-        
+    def start_pomodoro(self):        
 
 
         pomodoro_menu = PomodoroUI(self.login)
         widget.addWidget(pomodoro_menu)
         widget.setCurrentIndex(widget.currentIndex()+1)
+
+    def delete_project(self):
+
+        combotext = self.projectDeleteCombo.currentText()
+
+
+
+        with sqlite3.connect("Database//caferdatabase.db") as db:
+
+            cursor2 = db.cursor()
+            cursor2.execute("DELETE FROM subjects WHERE project_id = (SELECT project_id FROM projects WHERE project_name = ?)", (combotext,))
+
+            cursor = db.cursor()
+            cursor.execute("DELETE FROM projects WHERE project_name = ?",(combotext,))
+            
+        # self.projectDeleteCombo.currentText.clear()
+        UI.go_main_menu()
 
 
 
@@ -224,7 +253,7 @@ class PomodoroUI(QDialog):
 
         
         self.login = login
-        self.goToMainMenuButton.clicked.connect(LoginUI.go_main_menu)
+        self.goToMainMenuButton.clicked.connect(UI.go_main_menu)
         self.startStopButton.clicked.connect(self.start_button)
         self.doneButton.clicked.connect(self.done_button)
         self.addTask.clicked.connect(self.add_task_button)
@@ -288,8 +317,6 @@ class PomodoroUI(QDialog):
             else:
                 PomodoroUI.done_button(self)
                 self.sayac += 1
-            
-                
             
 
     def done_button(self):
@@ -391,7 +418,7 @@ class ShortBreakUI(QDialog):
     def __init__(self,login):
         super(ShortBreakUI,self).__init__()
         loadUi("UI//shortBreak.ui",self)
-
+        
         self.login = login
         self.goToMainMenuButton.clicked.connect(UI.go_main_menu)
         self.startButton.clicked.connect(self.short_break)
@@ -425,6 +452,7 @@ class ShortBreakUI(QDialog):
         pomodoro_menu = PomodoroUI(self.login)
         widget.addWidget(pomodoro_menu)
         widget.setCurrentIndex(widget.currentIndex()+1)         
+
 
 
 
