@@ -5,12 +5,19 @@ from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.uic import loadUi
 import sys
 
-from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QDialog, QApplication
-from PyQt5.uic import loadUi
+# from PyQt5 import QtWidgets
+# from PyQt5.QtWidgets import QDialog, QApplication
+# from PyQt5.uic import loadUi
 
 from PyQt5.QtCore import QTime, QTimer, QDate, Qt
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
+
+po_session = 0
+
+def sayac():
+    global po_session 
+    po_session += 1
+    print(po_session)
 
 class LoginUI(QDialog):
 
@@ -23,7 +30,7 @@ class LoginUI(QDialog):
         self.errorTextSignUp.setText("")
         
         self.db = None
-
+        "merhaba saban abi"
         
     def go_main_menu(self):
         main_menu = MainMenuUI(self.login)
@@ -60,19 +67,87 @@ class LoginUI(QDialog):
                 else:
                     self.errorTextLogin.setText("Sorry, your email address is not registered")
 
+
+
+
+
+
+
+    # =================================================================
+
+
+
+
+
+
 class MainMenuUI(QDialog):
+    # addSubjectOnProjectCombo 
     def __init__(self, login):
         super(MainMenuUI, self).__init__()
         loadUi("UI//mainMenu.ui", self)
         self.login = login
         self.addProjectButton.clicked.connect(self.add_new_Project)
-
+        self.startPomodoroButton.clicked.connect(self.start_pomodoro)
         self.addSubjectButton.clicked.connect(self.add_new_subject)
         self.errorTextSubjectLabel.setText("")
-
+        self.selectProjectCombo.currentTextChanged.connect(self.updateSubjectCombo)
+        
         self.db = None
- 
+
+    # ---------------------------------------------------------------- ProjectComboBox1 ----------------------------------------------------------------
+        query = "SELECT project_name FROM projects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)"
+        with sqlite3.connect("Database//pomodoro_database.db") as db:
+            cursor = db.cursor()
+            cursor.execute(query, (self.login,))
+            projects = cursor.fetchall()
+            for i in projects:
+                self.addSubjectOnProjectCombo.addItem(i[0])
+            db.commit()
+    # ---------------------------------------------------------------- ProjectComboBox1 ----------------------------------------------------------------
+
+
+
+
+
+
+    # ---------------------------------------------------------------- ProjectComboBox2 ----------------------------------------------------------------
+        query = "SELECT project_name FROM projects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)"
+        with sqlite3.connect("Database//pomodoro_database.db") as db:
+            cursor = db.cursor()
+            cursor.execute(query, (self.login,))
+            projects1 = cursor.fetchall()
+            for i in projects1:
+                # print(i)
+                self.selectProjectCombo.addItem(i[0])
+            db.commit()
+    # ---------------------------------------------------------------- ProjectComboBox2 ----------------------------------------------------------------
+        
+        
+
+
+
+    # ---------------------------------------------------------------- SubjectComboBox ----------------------------------------------------------------
+    def updateSubjectCombo(self, selectedProject):
+
+        with sqlite3.connect("Database//pomodoro_database.db") as db:
+            self.selectSubjectCombo.clear() 
+            cursor = db.cursor()
+            cursor.execute("SELECT subject_name FROM subjects WHERE project_id = (SELECT project_id FROM projects WHERE project_name = ?)", (selectedProject,))
+            subjects = cursor.fetchall()
+
+            for i in subjects:
+                # print(i)
+                self.selectSubjectCombo.addItem(i[0])
+            db.commit()
+    # ---------------------------------------------------------------- SubjectComboBox ----------------------------------------------------------------
+
+
+
+
+
+
     def add_new_Project(self):
+        # showProjectComboBox0()
         project_name = self.addProjectInput.text()
         # print(LoginUI.user_name)
         with sqlite3.connect("Database//pomodoro_database.db") as db:
@@ -86,32 +161,48 @@ class MainMenuUI(QDialog):
         print(f"The Project named {project_name} has been successfully added.")
 
     def add_new_subject(self):
-    
-            subject_name = self.addSubjectInput.text()
-            with sqlite3.connect("Database//pomodoro_database.db") as db:
-                cursor = db.cursor()
-                cursor.execute("SELECT user_id FROM users WHERE user_email = ?",(self.login,))
-                user_id = cursor.fetchone()[user_id]
-                cursor.execute("SELECT project_id FROM projects WHERE user_id = ?",(self.login,))
-                im = db.cursor()
-                im.execute(" Insert into subjects (subjet_id,subject_name) VALUES (?,?)",(subject_name,user_id))
-                db.commit()
+        subject_name = self.addSubjectInput.text()
+        with sqlite3.connect("Database//pomodoro_database.db") as db:
+            cursor = db.cursor()
+            cursor.execute("SELECT user_id FROM users WHERE user_email = ?",(self.login,))
+            user_id = cursor.fetchone()[0]
+
+
+            combotext = self.addSubjectOnProjectCombo.currentText()
+            cursor1 = db.cursor()
+            cursor1.execute("SELECT project_id FROM projects WHERE project_name = ?",(combotext,))
+            project_id = cursor1.fetchone()[0]
+
+            
+            im = db.cursor()
+            im.execute("INSERT INTO subjects(subject_name,user_id,project_id) VALUES (?,?,?)",(subject_name,user_id,project_id,))
+            db.commit()
+
+        print(f"The Subject named {combotext} has been successfully added.")
 
     def start_pomodoro(self):
-        pomodoro_menu = PomodoroUI()
+        pomodoro_menu = PomodoroUI(self.login)
         widget.addWidget(pomodoro_menu)
         widget.setCurrentIndex(widget.currentIndex()+1) 
 
+
+
+
+# =================================================================
+
+
+
 class PomodoroUI(QDialog):
+
     def __init__(self,login):
         super(PomodoroUI,self).__init__()
         loadUi("UI//pomodoro.ui",self)
 
+        
         self.login = login
-        self.goToMainMenuButton.clicked.connect(LoginUI.go_main_menu)
+        self.goToMainMenuButton.clicked.connect(UI.go_main_menu)
         self.startStopButton.clicked.connect(self.start_button)
         self.doneButton.clicked.connect(self.done_button)
-
 
 
         self.count_minutes = 0  
@@ -121,11 +212,16 @@ class PomodoroUI(QDialog):
 
 
 
-
+        # self.pomodoro_session = 0
         self.sayac = 0
-    def start_button(self):
 
+
+    def start_button(self):
         self.startStopButton.setEnabled(False)
+
+        # sayac()
+        # self.pomodoro_session += 1
+        # print(self.pomodoro_session)
 
         self.timer.start(1000)
         
@@ -163,10 +259,18 @@ class PomodoroUI(QDialog):
             self.im.execute("UPDATE tracking_history SET success = ?, end_time = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1)", ("+",PomodoroUI.show_time(self),))
             self.timer.stop()
             self.accept()
-            shortbreak = ShortBreakUI()
+            
+        db.commit()
+
+        if po_session == 4:
+                longbreak = LongBreakUI(self.login)
+                widget.addWidget(longbreak)
+                widget.setCurrentIndex(widget.currentIndex()+1)
+        else:
+            shortbreak = ShortBreakUI(self.login)
             widget.addWidget(shortbreak)
             widget.setCurrentIndex(widget.currentIndex()+1)
-        db.commit()
+            sayac()
 
 
     def show_time(self):
@@ -180,10 +284,16 @@ class PomodoroUI(QDialog):
         if self.count_minutes == 0 and self.count_seconds == 0:
             self.timer.stop()
             self.accept()
-            shortbreak = ShortBreakUI()
-            widget.addWidget(shortbreak)
-            widget.setCurrentIndex(widget.currentIndex()+1)
-            PomodoroUI.done_button(self)
+            if po_session == 4:
+                longBreak = LongBreakUI(self.login)
+                widget.addWidget(longBreak)
+                widget.setCurrentIndex(widget.currentIndex()+1)
+            else:
+                shortbreak = ShortBreakUI(self.login)
+                widget.addWidget(shortbreak)
+                widget.setCurrentIndex(widget.currentIndex()+1)
+                sayac()
+                PomodoroUI.done_button(self)
         else:
             if self.count_seconds == 0:
                 self.count_minutes -= 1
@@ -202,6 +312,7 @@ class PomodoroUI(QDialog):
 
 
 
+# =================================================================
 
 
 
@@ -209,16 +320,17 @@ class PomodoroUI(QDialog):
 
 
 class ShortBreakUI(QDialog):
-    def __init__(self):
+    def __init__(self,login):
         super(ShortBreakUI,self).__init__()
         loadUi("UI//shortBreak.ui",self)
 
-        self.goToMainMenuButton.clicked.connect(LoginUI.go_main_menu)
+        self.login = login
+        self.goToMainMenuButton.clicked.connect(UI.go_main_menu)
         self.startButton.clicked.connect(self.short_break)
         self.skipButton.clicked.connect(self.skip_button)
 
-        self.count_minutes = 5  
-        self.count_seconds = 0
+        self.count_minutes = 0  
+        self.count_seconds = 4
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_count)
         
@@ -229,7 +341,7 @@ class ShortBreakUI(QDialog):
         if self.count_minutes == 0 and self.count_seconds == 0:
             self.timer.stop()
             self.accept()
-            pomodoro_menu = PomodoroUI()
+            pomodoro_menu = PomodoroUI(self.login)
             widget.addWidget(pomodoro_menu)
             widget.setCurrentIndex(widget.currentIndex()+1)
         else:
@@ -242,20 +354,28 @@ class ShortBreakUI(QDialog):
 
     def skip_button(self):
 
-        pomodoro_menu = PomodoroUI()
+        pomodoro_menu = PomodoroUI(self.login)
         widget.addWidget(pomodoro_menu)
         widget.setCurrentIndex(widget.currentIndex()+1)         
 
 
 
 
+
+# =================================================================
+
+
+
+
+
+
 class LongBreakUI(QDialog):
-    def __init__(self):
+    def __init__(self,login):
         super(LongBreakUI,self).__init__()
         loadUi("UI//longBreak.ui",self)
 
-        self.goToMainMenuButton.clicked.connect(LoginUI.go_main_menu)
-
+        self.login = login
+        self.goToMainMenuButton.clicked.connect(UI.go_main_menu)
         self.startButton.clicked.connect(self.long_break)
         self.skipButton.clicked.connect(self.skip_button)
 
@@ -292,8 +412,8 @@ class LongBreakUI(QDialog):
 
 app = QApplication(sys.argv)
 UI = LoginUI()
-# UI = MainMenuUI()
-# UI = PomodoroUI("cafer@")
+# UI = MainMenuUI("c@")
+# UI = PomodoroUI()
 # UI = ShortBreakUI()
 # UI = LongBreakUI()
 

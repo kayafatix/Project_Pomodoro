@@ -5,9 +5,9 @@ from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.uic import loadUi
 import sys
 
-from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QDialog, QApplication
-from PyQt5.uic import loadUi
+# from PyQt5 import QtWidgets
+# from PyQt5.QtWidgets import QDialog, QApplication
+# from PyQt5.uic import loadUi
 
 from PyQt5.QtCore import QTime, QTimer, QDate, Qt
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
