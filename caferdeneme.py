@@ -28,6 +28,7 @@ class LoginUI(QDialog):
         self.loginButton.clicked.connect(self.login_button)
         self.errorTextLogin.setText("")
         self.errorTextSignUp.setText("")
+    
         
         self.db = None
         "merhaba saban abi"
@@ -45,7 +46,7 @@ class LoginUI(QDialog):
             with sqlite3.connect("Database//caferdatabase.db") as db:
                 im = db.cursor()
                 im.execute("INSERT INTO users(name,user_email) VALUES(?,?)",(self.name,self.user_email))
-                db.commit()
+            
                 print(f"The user named {self.name} has been successfully registered.")
         else:
             self.errorTextSignUp.setText("Sorry, your mail address must include '@' character")
@@ -102,7 +103,7 @@ class MainMenuUI(QDialog):
             projects = cursor.fetchall()
             for i in projects:
                 self.addSubjectOnProjectCombo.addItem(i[0])
-            db.commit()
+      
     # ---------------------------------------------------------------- ProjectComboBox1 ----------------------------------------------------------------
 
 
@@ -119,10 +120,11 @@ class MainMenuUI(QDialog):
             for i in projects1:
                 # print(i)
                 self.selectProjectCombo.addItem(i[0])
-            db.commit()
+     
     # ---------------------------------------------------------------- ProjectComboBox2 ----------------------------------------------------------------
         
         
+
 
 
 
@@ -138,7 +140,7 @@ class MainMenuUI(QDialog):
             for i in subjects:
                 # print(i)
                 self.selectSubjectCombo.addItem(i[0])
-            db.commit()
+
     # ---------------------------------------------------------------- SubjectComboBox ----------------------------------------------------------------
 
 
@@ -156,7 +158,7 @@ class MainMenuUI(QDialog):
             user_id = cursor.fetchone()[0]
             im = db.cursor()
             im.execute("INSERT INTO projects(project_name, user_id) VALUES (?, ?)", (project_name, user_id))
-            db.commit()
+      
 
         print(f"The Project named {project_name} has been successfully added.")
 
@@ -176,15 +178,37 @@ class MainMenuUI(QDialog):
             
             im = db.cursor()
             im.execute("INSERT INTO subjects(subject_name,user_id,project_id) VALUES (?,?,?)",(subject_name,user_id,project_id,))
-            db.commit()
+        
 
         print(f"The Subject named {combotext} has been successfully added.")
 
     def start_pomodoro(self):
+
+        # combotext = self.selectProjectCombo.currentText()
+        # combotext1 = self.selectSubjectCombo.currentText()
+
+        # with sqlite3.connect("Database//caferdatabase.db") as db:
+
+        #     cursor = db.cursor()
+        #     cursor.execute("SELECT user_id FROM users WHERE user_email = ?",(self.login,))
+        #     user_id = cursor.fetchone()[0]            
+            
+        #     cursor1 = db.cursor()
+        #     cursor1.execute("SELECT project_id FROM projects WHERE project_name = ?",(combotext,))
+        #     project_id = cursor1.fetchone()[0]
+
+        #     cursor1 = db.cursor()
+        #     cursor1.execute("SELECT subject_id FROM subjects WHERE subject_name = ?",(combotext1,))
+        #     subject_id = cursor1.fetchone()[0]
+
+        #     im = db.cursor()
+        #     im.execute("INSERT INTO tasks(user_id,project_id,subject_id) VALUES (?,?,?)",(user_id,project_id,subject_id,))
+        
+
+
         pomodoro_menu = PomodoroUI(self.login)
         widget.addWidget(pomodoro_menu)
-        widget.setCurrentIndex(widget.currentIndex()+1) 
-
+        widget.setCurrentIndex(widget.currentIndex()+1)
 
 
 
@@ -200,10 +224,10 @@ class PomodoroUI(QDialog):
 
         
         self.login = login
-        self.goToMainMenuButton.clicked.connect(UI.go_main_menu)
+        self.goToMainMenuButton.clicked.connect(LoginUI.go_main_menu)
         self.startStopButton.clicked.connect(self.start_button)
         self.doneButton.clicked.connect(self.done_button)
-
+        self.addTask.clicked.connect(self.add_task_button)
 
         self.count_minutes = 0  
         self.count_seconds = 5
@@ -214,6 +238,22 @@ class PomodoroUI(QDialog):
 
         # self.pomodoro_session = 0
         self.sayac = 0
+
+    # ---------------------------------------------------------------- TasksComboBox ----------------------------------------------------------------
+
+        query = "SELECT task_name FROM tasks WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)"
+        with sqlite3.connect("Database//caferdatabase.db") as db:
+            cursor = db.cursor()
+            cursor.execute(query, (self.login,))
+            projects = cursor.fetchall()
+            for i in projects:
+                self.tasksCombo.addItem(i[0])
+    # ---------------------------------------------------------------- TasksComboBox ----------------------------------------------------------------
+
+
+
+
+
 
 
     def start_button(self):
@@ -227,40 +267,42 @@ class PomodoroUI(QDialog):
         
 
         with sqlite3.connect("Database//caferdatabase.db") as db:
-            self.cursor = db.cursor()
-            self.cursor.execute("SELECT user_id FROM users WHERE user_email = ?", (self.login,))
-            self.user_id = self.cursor.fetchone()[0]
+            cursor = db.cursor()
+            cursor.execute("SELECT user_id FROM users WHERE user_email = ?", (self.login,))
+            user_id = cursor.fetchone()[0]
 
-            self.cursor = db.cursor()
-            self.cursor.execute("SELECT project_id FROM projects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)", (self.login,))
-            self.project_id = self.cursor.fetchone()[0]
+            cursor = db.cursor()
+            cursor.execute("SELECT project_id FROM projects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)", (self.login,))
+            project_id = cursor.fetchone()[0]
 
-            self.cursor = db.cursor()
-            self.cursor.execute("SELECT subject_id FROM subjects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)", (self.login,))
-            self.subject_id = self.cursor.fetchone()[0]
+            cursor = db.cursor()
+            cursor.execute("SELECT subject_id FROM subjects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)", (self.login,))
+            subject_id = cursor.fetchone()[0]
 
 
             if self.sayac % 2 == 0:
                 self.im = db.cursor()
                 
-                self.im.execute("INSERT INTO tracking_history(user_id, start_time, project_id, subject_id, date) VALUES (?, ?, ?, ?, ?)", (self.user_id, PomodoroUI.show_time(self), self.project_id, self.subject_id,PomodoroUI.show_date(self),))
+                self.im.execute("INSERT INTO tracking_history(user_id, start_time, project_id, subject_id, date) VALUES (?, ?, ?, ?, ?)", (user_id, PomodoroUI.show_time(self), project_id,subject_id,PomodoroUI.show_date(self),))
                 
             else:
                 PomodoroUI.done_button(self)
                 self.sayac += 1
+            
                 
             
 
     def done_button(self):
-
+        # print("heyt")
+        # self.timer.stop()
+        # self.accept()
         with sqlite3.connect("Database//caferdatabase.db") as db:
 
-            self.im = db.cursor()
-            self.im.execute("UPDATE tracking_history SET success = ?, end_time = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1)", ("+",PomodoroUI.show_time(self),))
+            curss = db.cursor()
+            curss.execute("UPDATE tracking_history SET success = ?, end_time = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1)", ("+",PomodoroUI.show_time(self),))
             self.timer.stop()
             self.accept()
-            
-        db.commit()
+        
 
         if po_session == 4:
                 longbreak = LongBreakUI(self.login)
@@ -307,13 +349,39 @@ class PomodoroUI(QDialog):
         self.current_date = QDate.currentDate()
         self.date_text = self.current_date.toString("dd-MM-yyyy")
         return self.date_text
+    
+    def add_task_button(self):
+        combo = MainMenuUI(self.login)
+        combotext = combo.selectProjectCombo.currentText()
+        combotext1 = combo.selectSubjectCombo.currentText()
+        add_task = self.taskInput.text()
 
+
+        print(combotext,combotext1)
+
+        with sqlite3.connect("Database//caferdatabase.db") as db:
+
+            cursor = db.cursor()
+            cursor.execute("SELECT user_id FROM users WHERE user_email = ?",(self.login,))
+            user_id = cursor.fetchone()[0]            
+            
+            cursor1 = db.cursor()
+            cursor1.execute("SELECT project_id FROM projects WHERE project_name = ?",(combotext,))
+            project_id = cursor1.fetchone()[0]
+
+            cursor1 = db.cursor()
+            cursor1.execute("SELECT subject_id FROM subjects WHERE subject_name = ?",(combotext1,))
+            subject_id = cursor1.fetchone()[0]
+
+            im = db.cursor()
+            im.execute("INSERT INTO tasks(user_id,project_id,subject_id,task_name) VALUES (?,?,?,?)",(user_id,project_id,subject_id,add_task,))
+            
+        
 
 
 
 
 # =================================================================
-
 
 
 
@@ -361,9 +429,7 @@ class ShortBreakUI(QDialog):
 
 
 
-
 # =================================================================
-
 
 
 
@@ -413,7 +479,7 @@ class LongBreakUI(QDialog):
 app = QApplication(sys.argv)
 UI = LoginUI()
 # UI = MainMenuUI("c@")
-# UI = PomodoroUI()
+# UI = PomodoroUI("c@")
 # UI = ShortBreakUI()
 # UI = LongBreakUI()
 
