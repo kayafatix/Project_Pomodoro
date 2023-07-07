@@ -276,7 +276,7 @@ class MainMenuUI(QDialog):
             cursor2.execute("DELETE FROM recipients WHERE resipient_email = ?", (recipient_text,))    
         self.deleteRecipientCombo.currentText.clear()
         UI.go_main_menu()
-
+# delee button yap
 
 # =================================================================
 
