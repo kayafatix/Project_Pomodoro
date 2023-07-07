@@ -124,6 +124,8 @@ class MainMenuUI(QDialog):
 
         self.errorTextSubjectLabel.setText("")
         self.selectProjectCombo.currentTextChanged.connect(self.updateSubjectCombo)
+        self.addRecipientButton.clicked.connect(self.add_recipient_emails)
+        
         
         # self.db = None
 
@@ -175,8 +177,23 @@ class MainMenuUI(QDialog):
 
     # ---------------------------------------------------------------- SubjectComboBox ----------------------------------------------------------------
 
+    # ---------------------------------------------------------------- RecipientsEmailComboBox ----------------------------------------------------------------
 
 
+# query = "SELECT project_name FROM projects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)"
+#         with sqlite3.connect("Database\pomodoro_database.db") as db:
+#             cursor = db.cursor()
+#             cursor.execute(query, (self.login,))
+#             projects1 = cursor.fetchall()
+#             for i in projects1:
+#                 # print(i)
+#                 self.selectProjectCombo.addItem(i[0])
+#                 self.projectDeleteCombo.addItem(i[0])
+
+
+
+
+    # ---------------------------------------------------------------- RecipientsEmailComboBox ----------------------------------------------------------------
 
 
 
@@ -239,6 +256,26 @@ class MainMenuUI(QDialog):
         # self.projectDeleteCombo.currentText.clear()
         UI.go_main_menu()
 
+    def add_recipient_emails(self)  :
+        recipient_emails= self.addRecipientInput.text()    
+            
+        if "@" in recipient_emails:
+            with sqlite3.connect("Database\pomodoro_database.db") as db:
+                im = db.cursor()
+                im.execute("INSERT INTO recipients(recipient_email) VALUES (?)",(recipient_emails,))      
+
+        else:
+                self.errorTextRecipientEmailLabel.setText("Sorry, your mail address must include '@' character") 
+
+    def delete_recipient_emails(self):
+        recipient_text = self.deleteRecipientCombo.currentText()  
+
+        with sqlite3.connect("Database\pomodoro_database.db") as db:
+
+            cursor2 = db.cursor()
+            cursor2.execute("DELETE FROM recipients WHERE resipient_email = ?", (recipient_text,))    
+        self.deleteRecipientCombo.currentText.clear()
+        UI.go_main_menu()
 
 
 # =================================================================
