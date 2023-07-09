@@ -96,7 +96,7 @@ class MainMenuUI(QDialog):
         
         self.addProjectButton.clicked.connect(self.add_new_Project)
         self.addSubjectButton.clicked.connect(self.add_new_subject)
-        # self.addRecipientButton.clicked.connect(self.add_new_Recipient)
+        self.addRecipientButton.clicked.connect(self.add_new_Recipient)
         
         self.startPomodoroButton.clicked.connect(self.start_pomodoro)
         
@@ -120,13 +120,6 @@ class MainMenuUI(QDialog):
             projects = cursor.fetchall()
             for i in projects: 
                 self.addSubjectOnProjectCombo.addItem(i[0])
-
-    # ---------------------------------------------------------------- ProjectComboBox1 ----------------------------------------------------------------
-
-
-
-
-
 
     # ---------------------------------------------------------------- ProjectComboBox2 ----------------------------------------------------------------
         query = "SELECT project_name FROM projects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)"
@@ -245,34 +238,34 @@ class MainMenuUI(QDialog):
         # self.projectDeleteCombo.currentText.clear()
         UI.go_main_menu()
 
-    # def add_new_Recipient(self):
-    #     self.recipients_email = self.addRecipientInput.text()
+    def add_new_Recipient(self):
+        self.recipients_email = self.addRecipientInput.text()
         
-    #     # is_valid_email = lambda email: True if re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email) else False
+        # is_valid_email = lambda email: True if re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email) else False
         
-    #     if self.recipients_email == "":
-    #         self.errorTextRecipientsEmailLabel.setText("email fields cannot be left blank!")
+        if self.recipients_email == "":
+            self.errorTextRecipientsEmailLabel.setText("email fields cannot be left blank!")
             
-    #     elif "@" in self.recipients_email:
-    #         with sqlite3.connect(""poo_database.db"") as db:
-    #             cursor = db.cursor()
-    #             cursor.execute("SELECT * FROM recipients")
-    #             recipients_e_mail=[]
-    #             for i in cursor.fetchall():
-    #                 recipients_e_mail.append(i[1])
-    #             # print( e_mail)
-    #             if self.recipients_email in recipients_e_mail:
-    #                 self.errorTextRecipientsEmailLabel.setText(f"The user '{self.recipients_email}' is already exist.")
-    #             else:
-    #                 cursor.execute("INSERT INTO recipients(recipients_email) VALUES (?)", (self.recipients_email,))
-    #                 # db.commit()
-    #                 self.errorTextRecipientsEmailLabel.setText(f"The user '{self.recipients_email}' has been successfully added.")
-    #                 self.addRecipientInput.clear()
+        elif "@" in self.recipients_email:
+            with sqlite3.connect("poo_database.db") as db:
+                cursor = db.cursor()
+                cursor.execute("SELECT * FROM recipients")
+                recipients_e_mail=[]
+                for i in cursor.fetchall():
+                    recipients_e_mail.append(i[1])
+                # print( e_mail)
+                if self.recipients_email in recipients_e_mail:
+                    self.errorTextRecipientsEmailLabel.setText(f"The user '{self.recipients_email}' is already exist.")
+                else:
+                    cursor.execute("INSERT INTO recipients(recipients_email) VALUES (?)", (self.recipients_email,))
+                    # db.commit()
+                    self.errorTextRecipientsEmailLabel.setText(f"The user '{self.recipients_email}' has been successfully added.")
+                    self.addRecipientInput.clear()
                     
-    #     else:
-    #         self.errorTextRecipientsEmailLabel.setText("Sorry, your mail address must include '@' character")
+        else:
+            self.errorTextRecipientsEmailLabel.setText("Sorry, your mail address must include '@' character")
         
-    #     UI.go_main_menu()
+        UI.go_main_menu()
 
 
 # =================================================================
