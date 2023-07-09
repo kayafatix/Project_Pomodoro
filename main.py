@@ -3,7 +3,8 @@ from time import time
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QDialog, QApplication, QTableWidgetItem
 from PyQt5.uic import loadUi
-import sys
+import sys 
+import re
 
 from PyQt5.QtCore import QTime, QTimer, QDate, Qt
 # from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
@@ -31,33 +32,62 @@ class LoginUI(QDialog):
     def go_main_menu(self):
         main_menu = MainMenuUI(self.login)
         widget.addWidget(main_menu)
-        widget.setCurrentIndex(widget.currentIndex()+1)       
+        widget.setCurrentIndex(widget.currentIndex()+1)  
+        
+    
 
     def sign_up_button(self):
+        def is_valid_email(email):
+            if re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email):
+                return True
+            else:
+                return False
         self.name = self.nameInputSignUp.text()
         self.user_email = self.emailInputSignUp.text()
 
         if self.name == "" or self.user_email == "":
             self.errorTextSignUp.setText("'name' or 'email' fields cannot be left blank!")
-            
-        elif "@" in self.user_email:
+        elif not is_valid_email(self.user_email):
+            self.errorTextSignUp.setText("Sorry, your mail address is not valid.")
+        else:
             with sqlite3.connect("pomodoro.db") as db:
                 im = db.cursor()
                 im.execute("SELECT * FROM users")
-                e_mail=[]
-                for i in im.fetchall():
-                    e_mail.append(i[2])
-                # print( e_mail)
+                e_mail = [i[2] for i in im.fetchall()]
                 if self.user_email in e_mail:
-                    self.errorTextSignUp.setText(f"The user '{self.user_email}' is already exist.")
+                    self.errorTextSignUp.setText(f"The user '{self.user_email}' already exists.")
                 else:
-                    im.execute("INSERT INTO users(name,user_email) VALUES(?,?)",(self.name,self.user_email))
+                    im.execute("INSERT INTO users(name, user_email) VALUES(?, ?)", (self.name, self.user_email))
                     db.commit()
                     self.errorTextSignUp.setText(f"The user '{self.user_email}' has been successfully registered.")
                     self.nameInputSignUp.clear()
-                    self.emailInputSignUp.clear()
-        else:
-            self.errorTextSignUp.setText("Sorry, your mail address must include '@' character")
+                    self.emailInputSignUp.clear()     
+
+    # def sign_up_button(self):
+    #     self.name = self.nameInputSignUp.text()
+    #     self.user_email = self.emailInputSignUp.text()
+
+    #     if self.name == "" or self.user_email == "":
+    #         self.errorTextSignUp.setText("'name' or 'email' fields cannot be left blank!")
+            
+    #     elif "@" in self.user_email:
+    #         with sqlite3.connect("pomodoro.db") as db:
+    #             im = db.cursor()
+    #             im.execute("SELECT * FROM users")
+    #             e_mail=[]
+    #             for i in im.fetchall():
+    #                 e_mail.append(i[2])
+    #             # print( e_mail)
+    #             if self.user_email in e_mail:
+    #                 self.errorTextSignUp.setText(f"The user '{self.user_email}' is already exist.")
+    #             else:
+    #                 im.execute("INSERT INTO users(name,user_email) VALUES(?,?)",(self.name,self.user_email))
+    #                 db.commit()
+    #                 self.errorTextSignUp.setText(f"The user '{self.user_email}' has been successfully registered.")
+    #                 self.nameInputSignUp.clear()
+    #                 self.emailInputSignUp.clear()
+    #     else:
+    #         self.errorTextSignUp.setText("Sorry, your mail address must include '@' character")
         
     def login_button(self):
         
