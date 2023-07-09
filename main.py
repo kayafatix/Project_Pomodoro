@@ -5,6 +5,8 @@ from PyQt5.QtWidgets import QDialog, QApplication, QTableWidgetItem
 from PyQt5.uic import loadUi
 import sys 
 import re
+import threading
+import time
 
 from PyQt5.QtCore import QTime, QTimer, QDate, Qt
 # from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
@@ -25,6 +27,7 @@ class LoginUI(QDialog):
         self.loginButton.clicked.connect(self.login_button)
         self.errorTextLogin.setText("")
         self.errorTextSignUp.setText("")
+        
     
         self.db = None
         
@@ -32,18 +35,17 @@ class LoginUI(QDialog):
     def go_main_menu(self):
         main_menu = MainMenuUI(self.login)
         widget.addWidget(main_menu)
-        widget.setCurrentIndex(widget.currentIndex()+1)  
-        
-    
+        widget.setCurrentIndex(widget.currentIndex()+1)     
 
     def sign_up_button(self):
+        self.name = self.nameInputSignUp.text()
+        self.user_email = self.emailInputSignUp.text()
+        
         def is_valid_email(email):
             if re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email):
                 return True
             else:
-                return False
-        self.name = self.nameInputSignUp.text()
-        self.user_email = self.emailInputSignUp.text()
+                return False        
 
         if self.name == "" or self.user_email == "":
             self.errorTextSignUp.setText("'name' or 'email' fields cannot be left blank!")
@@ -62,57 +64,30 @@ class LoginUI(QDialog):
                     self.errorTextSignUp.setText(f"The user '{self.user_email}' has been successfully registered.")
                     self.nameInputSignUp.clear()
                     self.emailInputSignUp.clear()     
-
-    # def sign_up_button(self):
-    #     self.name = self.nameInputSignUp.text()
-    #     self.user_email = self.emailInputSignUp.text()
-
-    #     if self.name == "" or self.user_email == "":
-    #         self.errorTextSignUp.setText("'name' or 'email' fields cannot be left blank!")
-            
-    #     elif "@" in self.user_email:
-    #         with sqlite3.connect("pomodoro.db") as db:
-    #             im = db.cursor()
-    #             im.execute("SELECT * FROM users")
-    #             e_mail=[]
-    #             for i in im.fetchall():
-    #                 e_mail.append(i[2])
-    #             # print( e_mail)
-    #             if self.user_email in e_mail:
-    #                 self.errorTextSignUp.setText(f"The user '{self.user_email}' is already exist.")
-    #             else:
-    #                 im.execute("INSERT INTO users(name,user_email) VALUES(?,?)",(self.name,self.user_email))
-    #                 db.commit()
-    #                 self.errorTextSignUp.setText(f"The user '{self.user_email}' has been successfully registered.")
-    #                 self.nameInputSignUp.clear()
-    #                 self.emailInputSignUp.clear()
-    #     else:
-    #         self.errorTextSignUp.setText("Sorry, your mail address must include '@' character")
         
     def login_button(self):
-        
-        with sqlite3.connect("pomodoro.db") as db:
-            
+    
+        with sqlite3.connect("pomodoro.db") as db:            
             im = db.cursor()    
             im.execute("SELECT * FROM users")
             self.login = self.emailInputLogin.text()
             
             for i in im.fetchall():
                 im.execute("SELECT * FROM users")
-                # print(i)
                 if self.login == "" or "@" not in self.login:
-                    self.errorTextLogin.setText("For login please enter a valid email address!")
+                    self.errorTextLogin.setText("For login please enter a valid email address!")                   
                 
                 elif self.login in i:
                     self.go_main_menu()
                     break                               
+
                 else:
                     self.errorTextLogin.setText("Sorry, your email address is not registered!")
     # =================================================================
 
 
 class MainMenuUI(QDialog):
-    # addSubjectOnProjectCombo 
+    
     def __init__(self, login):
         super(MainMenuUI, self).__init__()
         loadUi("UI//mainMenu.ui", self)
@@ -127,7 +102,8 @@ class MainMenuUI(QDialog):
         self.projectDeleteButton.clicked.connect(self.delete_project)
         self.subjectDeleteButton.clicked.connect(self.delete_subject)
 
-        self.errorTextSubjectLabel.setText("Enter a Subject")
+        self.errorTextProjectLabel.setText("")
+        self.errorTextSubjectLabel.setText("")
         self.errorTextRecipientsEmailLabel.setText("Enter an email to add Recipients")
         
         
@@ -150,7 +126,8 @@ class MainMenuUI(QDialog):
             cursor = db.cursor()
             cursor.execute(query, (self.login,))
             projects = cursor.fetchall()
-            for i in projects: 
+            for i in projects:
+                 
                 self.addSubjectOnProjectCombo.addItem(i[0])
 
     # ---------------------------------------------------------------- ProjectComboBox2 ----------------------------------------------------------------
@@ -172,6 +149,7 @@ class MainMenuUI(QDialog):
 
     # ---------------------------------------------------------------- SubjectComboBox ----------------------------------------------------------------
     def updateSubjectCombo(self, selectedProject):
+        
 
         with sqlite3.connect("pomodoro.db") as db:
             self.selectSubjectCombo.clear() 
@@ -200,19 +178,40 @@ class MainMenuUI(QDialog):
 
 
     def add_new_Project(self):
-        # showProjectComboBox0()
+        # def go_main_menu_with_delay():
+        #     UI.go_main_menu()
+        # timer = QTimer()
+        # timer.timeout.connect(go_main_menu_with_delay)
+        # timer.start(3000)
+        
         project_name = self.addProjectInput.text()
-        # print(LoginUI.user_name)
         with sqlite3.connect("pomodoro.db") as db:
-            cursor = db.cursor()
-            cursor.execute("SELECT user_id FROM users WHERE user_email = ?",(self.login,))
-            user_id = cursor.fetchone()[0]
-            im = db.cursor()
-            im.execute("INSERT INTO projects(project_name, user_id) VALUES (?, ?)", (project_name, user_id))
-        UI.go_main_menu()
+                cursor_1 = db.cursor()
+                cursor_1.execute("SELECT project_name FROM projects")
+                all_projects = [i[0] for i in cursor_1.fetchall()]
+                # print(all_projects)
+        
+        if project_name == "":
+            self.errorTextProjectLabel.setText("Enter a project name")
+        
+        elif project_name in all_projects:
+            self.errorTextProjectLabel.setText(f"{project_name} already exists")
+    
+            
+        else:
+            
+            with sqlite3.connect("pomodoro.db") as db:
+                cursor = db.cursor()
+                cursor.execute("SELECT user_id FROM users WHERE user_email = ?",(self.login,))
+                user_id = cursor.fetchone()[0]
+                im = db.cursor()
+                im.execute("INSERT INTO projects(project_name, user_id) VALUES (?, ?)", (project_name, user_id))
+                self.errorTextProjectLabel.setText(f"'{project_name}' successfully added.")
+        
+        time.sleep(0.5)    
+                
+        UI.go_main_menu()         
 
-
-        print(f"The Project named {project_name} has been successfully added.")
 
     def add_new_subject(self):
         subject_name = self.addSubjectInput.text()
