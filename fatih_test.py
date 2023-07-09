@@ -92,7 +92,7 @@ class MainMenuUI(QDialog):
         loadUi("UI//mainMenu.ui", self)
         self.login = login
         
-        # self.titleWorkspaceLabel.setText(f"[{name}]'s Workspace")
+        
         
         self.addProjectButton.clicked.connect(self.add_new_Project)
         self.addSubjectButton.clicked.connect(self.add_new_subject)
@@ -112,15 +112,15 @@ class MainMenuUI(QDialog):
         
         # self.db = None
         
-        # query = "SELECT name FROM users WHERE user_id = ?"
-        # with sqlite3.connect("pomodoro.db") as db:
-        #     cursor = db.cursor()
-        #     cursor.execute(query, (self.login,))
-        #     name = cursor.fetchall()[0]
-        #     print(name)
-        #     # for i in projects: 
-        #     #     self.addSubjectOnProjectCombo.addItem(i[0])
-
+        query = "SELECT name FROM users WHERE user_email = ?"
+        with sqlite3.connect("pomodoro.db") as db:
+            cursor = db.cursor()
+            cursor.execute(query, (self.login,))
+            name = cursor.fetchone()[0]
+        self.titleWorkspaceLabel.setText(f"{name}'s Workspace")
+        
+        
+    
     # ---------------------------------------------------------------- ProjectComboBox1 ----------------------------------------------------------------
         query = "SELECT project_name FROM projects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)"
         with sqlite3.connect("pomodoro.db") as db:
