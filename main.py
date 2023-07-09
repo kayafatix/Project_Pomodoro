@@ -387,7 +387,7 @@ class PomodoroUI(QDialog):
             
 
     def done_button(self):
-        with sqlite3.connect("Database//caferdatabase.db") as db:
+        with sqlite3.connect("pomodoro.db") as db:
 
             curss = db.cursor()
             curss.execute("UPDATE tracking_history SET success = ?, end_time = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1)", ("+",PomodoroUI.show_time(self),))
@@ -428,7 +428,7 @@ class PomodoroUI(QDialog):
                 widget.addWidget(shortbreak)
                 widget.setCurrentIndex(widget.currentIndex()+1)
                 sayac()
-                with sqlite3.connect("Database//caferdatabase.db") as db:
+                with sqlite3.connect("pomodoro.db") as db:
 
                     curss = db.cursor()
                     curss.execute("UPDATE tracking_history SET success = ?, end_time = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1)", ("+",PomodoroUI.show_time(self),))
