@@ -178,11 +178,6 @@ class MainMenuUI(QDialog):
 
 
     def add_new_Project(self):
-        # def go_main_menu_with_delay():
-        #     UI.go_main_menu()
-        # timer = QTimer()
-        # timer.timeout.connect(go_main_menu_with_delay)
-        # timer.start(3000)
         
         project_name = self.addProjectInput.text()
         with sqlite3.connect("pomodoro.db") as db:
@@ -208,9 +203,9 @@ class MainMenuUI(QDialog):
                 im.execute("INSERT INTO projects(project_name, user_id) VALUES (?, ?)", (project_name, user_id))
                 self.errorTextProjectLabel.setText(f"'{project_name}' successfully added.")
         
-        time.sleep(0.5)    
+        # time.sleep(0.5)    
                 
-        UI.go_main_menu()         
+        # UI.go_main_menu()         
 
 
     def add_new_subject(self):
