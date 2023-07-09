@@ -272,7 +272,7 @@ class MainMenuUI(QDialog):
                 for i in im.fetchall():
                     recipient_emailBox.append(i[1])
                     if self.email in recipient_emailBox:
-                    self.errorTextSignUp.setText(f"The user '{self.emails}' is already exist.")
+                        self.errorTextSignUp.setText(f"The user '{self.emails}' is already exist.")
                     else:
                         im.execute("INSERT INTO recipients(recipients_email) VALUES(?)",(self.recipients_email))
                         db.commit()
@@ -285,12 +285,12 @@ class MainMenuUI(QDialog):
                  
  
 
-    def delete_recipient_emails(self):
-        recipient_text = self.deleteRecipientCombo.currentText() 
+    # def delete_recipient_emails(self):
+    #     recipient_text = self.deleteRecipientCombo.currentText() 
         
-        with sqlite3.connect("Database//pomodoro_database.db") as db: 
-            cursor2 = db.cursor()
-            cursor2.execute("DELETE FROM recipients WHERE resipients_email = ?", (recipients_text,)) 
+    #     with sqlite3.connect("Database//pomodoro_database.db") as db: 
+    #         cursor2 = db.cursor()
+    #         cursor2.execute("DELETE FROM recipients WHERE resipients_email = ?", (recipients_text,)) 
                    
     #     self.deleteRecipientCombo.currentText.clear()
     #     UI.go_main_menu()

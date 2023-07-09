@@ -14,7 +14,7 @@ po_session = 1
 def sayac():
     global po_session 
     po_session += 1
-    print(po_session)
+    # print(po_session)
 
 class LoginUI(QDialog):
 
@@ -28,25 +28,12 @@ class LoginUI(QDialog):
     
         
         self.db = None
-        "merhaba saban abi"
         
     def go_main_menu(self):
         main_menu = MainMenuUI(self.login)
         widget.addWidget(main_menu)
         widget.setCurrentIndex(widget.currentIndex()+1)       
 
-    # def sign_up_button(self):
-    #     self.name = self.nameInputSignUp.text()
-    #     self.user_email = self.emailInputSignUp.text()
-
-    #     if "@" in self.user_email:
-    #         with sqlite3.connect("Database//caferdatabase.db") as db:
-    #             im = db.cursor()
-    #             im.execute("INSERT INTO users(name,user_email) VALUES(?,?)",(self.name,self.user_email))
-            
-    #             print(f"The user named {self.name} has been successfully registered.")
-    #     else:
-    #         self.errorTextSignUp.setText("Sorry, your mail address must include '@' character")
     def sign_up_button(self):
         self.name = self.nameInputSignUp.text()
         self.user_email = self.emailInputSignUp.text()
@@ -100,7 +87,7 @@ class LoginUI(QDialog):
 
 
 
-    # =================================================================cafer
+    # =================================================================
 
 
 

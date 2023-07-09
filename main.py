@@ -1,18 +1,14 @@
 import sqlite3
 from time import time
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QDialog, QApplication
+from PyQt5.QtWidgets import QDialog, QApplication, QTableWidgetItem
 from PyQt5.uic import loadUi
 import sys
 
-# from PyQt5 import QtWidgets
-# from PyQt5.QtWidgets import QDialog, QApplication
-# from PyQt5.uic import loadUi
-
 from PyQt5.QtCore import QTime, QTimer, QDate, Qt
-from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
+# from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
 
-po_session = 0
+po_session = 1
 
 def sayac():
     global po_session 
@@ -92,8 +88,6 @@ class MainMenuUI(QDialog):
         loadUi("UI//mainMenu.ui", self)
         self.login = login
         
-        self.titleWorkspaceLabel.setText(f"[{self.login}]'s Workspace")
-        
         self.addProjectButton.clicked.connect(self.add_new_Project)
         self.addSubjectButton.clicked.connect(self.add_new_subject)
         self.addRecipientButton.clicked.connect(self.add_new_Recipient)
@@ -109,8 +103,16 @@ class MainMenuUI(QDialog):
         
         self.selectProjectCombo.currentTextChanged.connect(self.updateSubjectCombo)
         self.projectDeleteCombo.currentTextChanged.connect(self.updateDeleteSubjectCombo)
+
+        self.showSummaryButton.clicked.connect(self.show_summary)
         
         # self.db = None
+        query = "SELECT name FROM users WHERE user_email = ?"
+        with sqlite3.connect("pomodoro.db") as db:
+            cursor = db.cursor()
+            cursor.execute(query, (self.login,))
+            name = cursor.fetchone()[0]
+        self.titleWorkspaceLabel.setText(f"{name}'s Workspace")
 
     # ---------------------------------------------------------------- ProjectComboBox1 ----------------------------------------------------------------
         query = "SELECT project_name FROM projects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)"
@@ -267,6 +269,44 @@ class MainMenuUI(QDialog):
         
         UI.go_main_menu()
 
+    def show_summary(self):
+        # Veritabanı bağlantısını açın
+        # connection = sqlite3.connect("veritabani.db")
+        # cursor = connection.cursor()
+        with sqlite3.connect("pomodoro.db") as db:
+            cursor = db.cursor()
+
+            # # Tablo adını ve sütun sayısını alın
+            # table_name = "tracking_history"
+            # cursor.execute(f"PRAGMA table_info({table_name})")
+            # columns = cursor.fetchall()
+            # column_count = len(columns)
+
+            # Tablo içeriğini alın
+            cursor.execute(f"SELECT date, start_time,end_time,success,failure FROM tracking_history")
+            rows = cursor.fetchall()
+            row_count = len(rows)
+
+            # Tablo boyutunu ayarlayın
+            self.summaryTableValuesWidget.setRowCount(row_count)
+            self.summaryTableValuesWidget.setColumnCount(5)
+
+            # Hücrelere verileri yerleştirin
+            for row in range(row_count):
+                for col in range(5):
+                    item = QTableWidgetItem(str(rows[row][col]))
+                    self.summaryTableValuesWidget.setItem(row, col, item)
+
+    # def delete_recipient_emails(self):
+    #     recipient_text = self.deleteRecipientCombo.currentText() 
+        
+    #     with sqlite3.connect("Database//pomodoro_database.db") as db: 
+    #         cursor2 = db.cursor()
+    #         cursor2.execute("DELETE FROM recipients WHERE resipients_email = ?", (recipients_text,)) 
+                   
+    #     self.deleteRecipientCombo.currentText.clear()
+    #     UI.go_main_menu()
+
 
 # =================================================================
 
@@ -293,7 +333,7 @@ class PomodoroUI(QDialog):
 
 
         # self.pomodoro_session = 0
-        self.sayac = 0
+        
 
     # ---------------------------------------------------------------- TasksComboBox ----------------------------------------------------------------
 
@@ -311,7 +351,7 @@ class PomodoroUI(QDialog):
 
 
 
-
+        self.sayac = 0
     def start_button(self):
         self.startStopButton.setEnabled(False)
 
@@ -347,10 +387,7 @@ class PomodoroUI(QDialog):
             
 
     def done_button(self):
-        # print("heyt")
-        # self.timer.stop()
-        # self.accept()
-        with sqlite3.connect("pomodoro.db") as db:
+        with sqlite3.connect("Database//caferdatabase.db") as db:
 
             curss = db.cursor()
             curss.execute("UPDATE tracking_history SET success = ?, end_time = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1)", ("+",PomodoroUI.show_time(self),))
@@ -358,10 +395,11 @@ class PomodoroUI(QDialog):
             self.accept()
         
 
-        if po_session == 4:
+        if po_session % 4 == 0:
                 longbreak = LongBreakUI(self.login)
                 widget.addWidget(longbreak)
                 widget.setCurrentIndex(widget.currentIndex()+1)
+                sayac()
         else:
             shortbreak = ShortBreakUI(self.login)
             widget.addWidget(shortbreak)
@@ -380,16 +418,22 @@ class PomodoroUI(QDialog):
         if self.count_minutes == 0 and self.count_seconds == 0:
             self.timer.stop()
             self.accept()
-            if po_session == 4:
-                longBreak = LongBreakUI(self.login)
-                widget.addWidget(longBreak)
-                widget.setCurrentIndex(widget.currentIndex()+1)
+            if po_session % 4 == 0:
+                    longBreak = LongBreakUI(self.login)
+                    widget.addWidget(longBreak)
+                    widget.setCurrentIndex(widget.currentIndex()+1)
+                    sayac()
             else:
                 shortbreak = ShortBreakUI(self.login)
                 widget.addWidget(shortbreak)
                 widget.setCurrentIndex(widget.currentIndex()+1)
                 sayac()
-                PomodoroUI.done_button(self)
+                with sqlite3.connect("Database//caferdatabase.db") as db:
+
+                    curss = db.cursor()
+                    curss.execute("UPDATE tracking_history SET success = ?, end_time = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1)", ("+",PomodoroUI.show_time(self),))
+                    self.timer.stop()
+                    self.accept()
         else:
             if self.count_seconds == 0:
                 self.count_minutes -= 1
@@ -512,7 +556,7 @@ class LongBreakUI(QDialog):
         if self.count_minutes == 0 and self.count_seconds == 0:
             self.timer.stop()
             self.accept()
-            pomodoro_menu = PomodoroUI()
+            pomodoro_menu = PomodoroUI(self.login)
             widget.addWidget(pomodoro_menu)
             widget.setCurrentIndex(widget.currentIndex()+1)
         else:
@@ -525,7 +569,7 @@ class LongBreakUI(QDialog):
 
     def skip_button(self):
 
-        pomodoro_menu = PomodoroUI()
+        pomodoro_menu = PomodoroUI(self.login)
         widget.addWidget(pomodoro_menu)
         widget.setCurrentIndex(widget.currentIndex()+1)
 
