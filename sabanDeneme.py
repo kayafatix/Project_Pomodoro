@@ -127,7 +127,7 @@ class MainMenuUI(QDialog):
         self.addRecipientButton.clicked.connect(self.add_recipient_emails)
         #recipeint delete button
         self.deleteRecipientCombo.clicked.connect(self.delete_recipient_emails)
-        
+        #self.projectDeleteCombo.currentTextChanged.connect(self.updateDeleteSubjectCombo)
         # self.db = None
 
     # ---------------------------------------------------------------- ProjectComboBox1 ----------------------------------------------------------------
@@ -258,25 +258,42 @@ class MainMenuUI(QDialog):
         UI.go_main_menu()
 
     def add_recipient_emails(self)  :
-        recipient_emails= self.addRecipientInput.text()    
-            
-        if "@" in recipient_emails:
+        self.emails= self.addRecipientInput.text()    
+        if self.emails == "" :
+            self.errorTextRecipientEmailLabel.setText("email fields cannot be left blank!")    
+        elif "@" in recipient_emails:
             with sqlite3.connect("Database//pomodoro_database.db") as db:
                 im = db.cursor()
-                im.execute("INSERT INTO recipients(recipient_email) VALUES (?)",(recipient_emails,))      
-
+                im.execute("SELECT * FROM recipients") 
+                #im.execute("INSERT INTO recipients(recipients_email) VALUES (?)",(recipients_email,))
+                #im = db.cursor() 
+                #im.execute("SELECT * FROM recipients")     
+                recipient_emailBox = []
+                for i in im.fetchall():
+                    recipient_emailBox.append(i[1])
+                    if self.email in recipient_emailBox:
+                    self.errorTextSignUp.setText(f"The user '{self.emails}' is already exist.")
+                    else:
+                        im.execute("INSERT INTO recipients(recipients_email) VALUES(?)",(self.recipients_email))
+                        db.commit()
+                        self.errorRecipientsEmailLabel.setText(f"The user '{self.user_email}' has been successfully registered.")
+                        self.recipientsTitleLabel.clear()
+                        self.addRecipientInput.clear()
+                         
         else:
-                self.errorTextRecipientEmailLabel.setText("Sorry, your mail address must include '@' character") 
+            self.errorRecipientsEmailLabel.setText("Sorry, your mail address must include '@' character")
+                 
+ 
 
     def delete_recipient_emails(self):
-        recipient_text = self.deleteRecipientCombo.currentText()  
-
-        with sqlite3.connect("Database//pomodoro_database.db") as db:
-
+        recipient_text = self.deleteRecipientCombo.currentText() 
+        
+        with sqlite3.connect("Database//pomodoro_database.db") as db: 
             cursor2 = db.cursor()
-            cursor2.execute("DELETE FROM recipients WHERE resipient_email = ?", (recipient_text,))    
-        self.deleteRecipientCombo.currentText.clear()
-        UI.go_main_menu()
+            cursor2.execute("DELETE FROM recipients WHERE resipients_email = ?", (recipients_text,)) 
+                   
+    #     self.deleteRecipientCombo.currentText.clear()
+    #     UI.go_main_menu()
 
 
 # =================================================================
@@ -361,7 +378,7 @@ class PomodoroUI(QDialog):
         # print("heyt")
         # self.timer.stop()
         # self.accept()
-        with sqlite3.connect("Database/pomodoro_database.db") as db:
+        with sqlite3.connect("Database//pomodoro_database.db") as db:
 
             curss = db.cursor()
             curss.execute("UPDATE tracking_history SET success = ?, end_time = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1)", ("+",PomodoroUI.show_time(self),))
@@ -424,7 +441,7 @@ class PomodoroUI(QDialog):
 
         print(combotext,combotext1)
 
-        with sqlite3.connect("Database/pomodoro_database.db") as db:
+        with sqlite3.connect("Database//pomodoro_database.db") as db:
 
             cursor = db.cursor()
             cursor.execute("SELECT user_id FROM users WHERE user_email = ?",(self.login,))
