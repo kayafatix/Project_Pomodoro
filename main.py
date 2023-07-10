@@ -83,6 +83,8 @@ class LoginUI(QDialog):
 
                 else:
                     self.errorTextLogin.setText("Sorry, your email address is not registered!")
+
+                    
     # =================================================================
 
 
@@ -112,9 +114,27 @@ class MainMenuUI(QDialog):
         self.projectDeleteCombo.currentTextChanged.connect(self.updateDeleteSubjectCombo)
        
 
-        self.showSummaryButton.clicked.connect(self.show_summary)
+        self.selectSubjectCombo.currentTextChanged.connect(self.updatecafercombo)
+
+
         
+        self.showSummaryProjectCombo.currentTextChanged.connect(self.updateSummarySubjectCombo)
+
+
+
+        self.showSummaryButton.clicked.connect(self.show_summary)
+
+
+    
+
+        # print(self.currentList)
+
         # self.db = None
+
+
+
+
+
         query = "SELECT name FROM users WHERE user_email = ?"
         with sqlite3.connect("pomodoro.db") as db:
             cursor = db.cursor()
@@ -123,21 +143,26 @@ class MainMenuUI(QDialog):
         self.titleWorkspaceLabel.setText(f"{name}'s Workspace")
 
     # ---------------------------------------------------------------- ProjectComboBox1 ----------------------------------------------------------------
-        query = "SELECT project_name FROM projects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)"
+        query1 = "SELECT project_name FROM projects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)"
         with sqlite3.connect("pomodoro.db") as db:
             cursor = db.cursor()
-            cursor.execute(query, (self.login,))
+            cursor.execute(query1, (self.login,))
             projects = cursor.fetchall()
             for i in projects:
                  
                 self.addSubjectOnProjectCombo.addItem(i[0])
 
+<<<<<<< HEAD
     # ---------------------------------------------------------------- ProjectComboBox2 ----------------------------------------------------------------            
 
         query = "SELECT project_name FROM projects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)"
+=======
+    # ---------------------------------------------------------------- ProjectComboBox2 ----------------------------------------------------------------
+        query2 = "SELECT project_name FROM projects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)"
+>>>>>>> dafc24726c5079fa2a98701ca064b4e285c5aae3
         with sqlite3.connect("pomodoro.db") as db:
             cursor = db.cursor()
-            cursor.execute(query, (self.login,))
+            cursor.execute(query2, (self.login,))
             projects1 = cursor.fetchall()
             for i in projects1:
                 # print(i)
@@ -145,6 +170,7 @@ class MainMenuUI(QDialog):
                 self.projectDeleteCombo.addItem(i[0])
     # ---------------------------------------------------------------- Recipients Combobox ----------------------------------------------------------------
 
+<<<<<<< HEAD
         query = "SELECT recipients_email FROM recipients"
         with sqlite3.connect("pomodoro.db") as db:
             cursor = db.cursor()
@@ -156,16 +182,44 @@ class MainMenuUI(QDialog):
 
     # ---------------------------------------------------------------- SubjectComboBox ----------------------------------------------------------------
     def updateSubjectCombo(self, selectedProject):        
+=======
+    # ---------------------------------------------------------------- ProjectComboBox2 ----------------------------------------------------------------
+        
+        # self.currentList = []
+        # currentproject = self.selectProjectCombo.currentText()
+        # 
+        # self.currentList.append(currentproject)
+        # self.currentList.append(currentsubject)
 
-        with sqlite3.connect("pomodoro.db") as db:
-            self.selectSubjectCombo.clear() 
-            cursor = db.cursor()
-            cursor.execute("SELECT subject_name FROM subjects WHERE project_id = (SELECT project_id FROM projects WHERE project_name = ?)", (selectedProject,))
-            subjects = cursor.fetchall()
 
-            for i in subjects:
-                # print(i)
-                self.selectSubjectCombo.addItem(i[0])
+
+    # ---------------------------------------------------------------- SubjectComboBox ----------------------------------------------------------------
+    def updateSubjectCombo(self, selectedProject):
+            
+            self.pomodoro_project = selectedProject
+>>>>>>> dafc24726c5079fa2a98701ca064b4e285c5aae3
+
+            # print(self.pomodoro_project)
+            # self.pomodoro_project_method()
+            with sqlite3.connect("pomodoro.db") as db:
+                self.selectSubjectCombo.clear() 
+                cursor = db.cursor()
+                cursor.execute("SELECT subject_name FROM subjects WHERE project_id = (SELECT project_id FROM projects WHERE project_name = ?)", (selectedProject,))
+                subjects = cursor.fetchall()
+
+                for i in subjects:
+                    # print(i)
+                    self.selectSubjectCombo.addItem(i[0])
+
+    def updatecafercombo(self,selectedSubject):
+
+        self.currentsubject = selectedSubject
+
+    # def pomodoro_project_method(self):
+    #     print(self.pomodoro_project)
+    
+    
+
 
     # ---------------------------------------------------------------- SubjectComboBox ----------------------------------------------------------------
     def updateDeleteSubjectCombo(self, selected_Project):
@@ -180,6 +234,61 @@ class MainMenuUI(QDialog):
                 self.subjectDeleteCombo.addItem(i[0])
 
 
+<<<<<<< HEAD
+=======
+    # ---------------------------------------------------------------- SummaryProjectCombo ----------------------------------------------------------------
+        query3 = "SELECT project_name FROM projects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)"
+        with sqlite3.connect("pomodoro.db") as db:
+            cursor = db.cursor()
+            cursor.execute(query3, (self.login,))
+            self.project_summary = cursor.fetchall()
+            self.showSummaryProjectCombo.addItem("All")
+            for i in self.project_summary:
+                # print(i)
+                self.showSummaryProjectCombo.addItem(i[0])
+    # ---------------------------------------------------------------- SummaryProjectCombo ----------------------------------------------------------------
+    
+
+
+    # ---------------------------------------------------------------- SummarySubjecttCombo ----------------------------------------------------------------
+
+    def updateSummarySubjectCombo(self, selectedSummaryProject):
+            # print(selectedSummaryProject)
+            
+            if selectedSummaryProject == "All":
+
+                with sqlite3.connect("pomodoro.db") as db:
+                    self.showSummarySubjectCombo.clear() 
+                    cursor = db.cursor()
+                    cursor.execute("SELECT subject_name FROM subjects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)", (self.login,))
+                    subjects = cursor.fetchall()
+                    self.showSummarySubjectCombo.addItem("All")
+                    # print(selectedSummaryProject)
+                    for i in subjects:
+                        # print(i)
+                        self.showSummarySubjectCombo.addItem(i[0])
+
+            else:
+            
+                with sqlite3.connect("pomodoro.db") as db:
+                    self.showSummarySubjectCombo.clear() 
+                    cursor = db.cursor()
+                    cursor.execute("SELECT subject_name FROM subjects WHERE project_id = (SELECT project_id FROM projects WHERE project_name = ?)", (selectedSummaryProject,))
+                    subjects = cursor.fetchall()
+                    self.showSummarySubjectCombo.addItem("All")
+                    # print(selectedSummaryProject)
+                    for i in subjects:
+                        # print(i)
+                        self.showSummarySubjectCombo.addItem(i[0])
+
+
+
+
+    
+
+    # ---------------------------------------------------------------- SummarySubjecttCombo ----------------------------------------------------------------
+
+>>>>>>> dafc24726c5079fa2a98701ca064b4e285c5aae3
     def add_new_Project(self):
         
         project_name = self.addProjectInput.text()
@@ -241,11 +350,11 @@ class MainMenuUI(QDialog):
             UI.go_main_menu()
             
         print(f"The Subject named {combotext} has been successfully added.")
-
+    
+        
     def start_pomodoro(self):        
 
-
-        pomodoro_menu = PomodoroUI(self.login)
+        pomodoro_menu = PomodoroUI(self.login,self.pomodoro_project,self.currentsubject)
         widget.addWidget(pomodoro_menu)
         widget.setCurrentIndex(widget.currentIndex()+1)
 
@@ -266,7 +375,7 @@ class MainMenuUI(QDialog):
 
     def delete_subject(self):
         combotext1 = self.subjectDeleteCombo.currentText()
-        print(combotext1)
+        # print(combotext1)
 
         with sqlite3.connect("pomodoro.db") as db:
 
@@ -317,48 +426,403 @@ class MainMenuUI(QDialog):
             self.errorTextRecipientsEmailLabel.setText(f"{combotext} deleted successfully.")
 
     def show_summary(self):
-        # Veritabanı bağlantısını açın
-        # connection = sqlite3.connect("veritabani.db")
-        # cursor = connection.cursor()
-        with sqlite3.connect("pomodoro.db") as db:
-            cursor = db.cursor()
 
-            # # Tablo adını ve sütun sayısını alın
-            # table_name = "tracking_history"
-            # cursor.execute(f"PRAGMA table_info({table_name})")
-            # columns = cursor.fetchall()
-            # column_count = len(columns)
+        project_combotext = self.showSummaryProjectCombo.currentText()
+        subject_combotext = self.showSummarySubjectCombo.currentText()
+        period = self.showSummaryPeriodCombo.currentText()
+        # print(type(project_combotext))
+        # print(subject_combotext)
+        # print(PomodoroUI.show_date(self)[:2])
 
-            # Tablo içeriğini alın
-            cursor.execute(f"SELECT date, start_time,end_time,success,failure FROM tracking_history")
-            rows = cursor.fetchall()
-            row_count = len(rows)
 
-            # Tablo boyutunu ayarlayın
-            self.summaryTableValuesWidget.setRowCount(row_count)
-            self.summaryTableValuesWidget.setColumnCount(5)
+        Qtoday = QDate.currentDate()
+        today = Qtoday.addDays(0)
+        # print(today.toString('dd-MM-yyyy'))
+        before1week = Qtoday.addDays(-7)
+        before1month = Qtoday.addMonths(-1)
 
-            # Hücrelere verileri yerleştirin
-            for row in range(row_count):
-                for col in range(5):
-                    item = QTableWidgetItem(str(rows[row][col]))
-                    self.summaryTableValuesWidget.setItem(row, col, item)
+        # print(before1month.toString('dd-MM-yyyy'))
 
+
+        
+
+        # print(before1week.toString('dd-MM-yyyy'))
+        # print(today.toString('dd-MM-MM'))
+
+
+
+        # c_date = PomodoroUI.show_date(self)[:2]
+        # print(c_date)
+        # caferrrr = str(10)
+
+        # with sqlite3.connect("pomodoro.db") as db:
+        #     cursor = db.cursor()
+        #     cursor.execute(f"SELECT date FROM tracking_history WHERE date BETWEEN '{before1week.toString('dd-MM-yyyy')}' AND '{today.toString('dd-MM-yyy')}'")
+        #     print(cursor.fetchall())
+            
+            
+
+        
+
+        # c_date = PomodoroUI.show_date(self)
+        # print(c_date)
+
+
+
+
+
+        if project_combotext == "All" and subject_combotext != "All":
+
+            if period == "All":
+                with sqlite3.connect("pomodoro.db") as db:
+
+                    cursor = db.cursor()
+                    cursor.execute(f"SELECT date, start_time,end_time,success,failure FROM tracking_history WHERE (subject_id = (SELECT subject_id FROM subjects WHERE subject_name = '{subject_combotext}'))")
+                    rows = cursor.fetchall()
+                    row_count = len(rows)
+
+                    # Tablo boyutunu ayarlayın
+                    self.summaryTableValuesWidget.setRowCount(row_count)
+                    self.summaryTableValuesWidget.setColumnCount(5)
+
+                    # Hücrelere verileri yerleştirin
+                    for row in range(row_count):
+                        for col in range(5):
+                            item = QTableWidgetItem(str(rows[row][col]))
+                            self.summaryTableValuesWidget.setItem(row, col, item)
+
+            if period == "Today":
+                with sqlite3.connect("pomodoro.db") as db:
+
+                    cursor = db.cursor()
+                    cursor.execute(f"SELECT date, start_time,end_time,success,failure FROM tracking_history WHERE (subject_id = (SELECT subject_id FROM subjects WHERE subject_name = '{subject_combotext}')) AND date = '{today.toString('dd-MM-yyyy')}'")
+                    rows = cursor.fetchall()
+                    row_count = len(rows)
+
+                    # Tablo boyutunu ayarlayın
+                    self.summaryTableValuesWidget.setRowCount(row_count)
+                    self.summaryTableValuesWidget.setColumnCount(5)
+
+                    # Hücrelere verileri yerleştirin
+                    for row in range(row_count):
+                        for col in range(5):
+                            item = QTableWidgetItem(str(rows[row][col]))
+                            self.summaryTableValuesWidget.setItem(row, col, item)
+                    
+            if period == "This week":
+                with sqlite3.connect("pomodoro.db") as db:
+
+                    cursor = db.cursor()
+                    cursor.execute(f"SELECT date, start_time,end_time,success,failure FROM tracking_history WHERE (subject_id = (SELECT subject_id FROM subjects WHERE subject_name = '{subject_combotext}')) AND date BETWEEN '{before1week.toString('dd-MM-yyyy')}' AND '{today.toString('dd-MM-yyyy')}'")
+                    rows = cursor.fetchall()
+                    row_count = len(rows)
+
+                    # Tablo boyutunu ayarlayın
+                    self.summaryTableValuesWidget.setRowCount(row_count)
+                    self.summaryTableValuesWidget.setColumnCount(5)
+
+                    # Hücrelere verileri yerleştirin
+                    for row in range(row_count):
+                        for col in range(5):
+                            item = QTableWidgetItem(str(rows[row][col]))
+                            self.summaryTableValuesWidget.setItem(row, col, item)
+
+            if period == "This month":
+                with sqlite3.connect("pomodoro.db") as db:
+
+                    cursor = db.cursor()
+                    cursor.execute(f"SELECT date, start_time,end_time,success,failure FROM tracking_history WHERE (subject_id = (SELECT subject_id FROM subjects WHERE subject_name = '{subject_combotext}')) AND date BETWEEN '{before1month.toString('dd-MM-yyyy')}' AND '{today.toString('dd-MM-yyyy')}'")
+                    rows = cursor.fetchall()
+                    row_count = len(rows)
+
+                    # Tablo boyutunu ayarlayın
+                    self.summaryTableValuesWidget.setRowCount(row_count)
+                    self.summaryTableValuesWidget.setColumnCount(5)
+
+                    # Hücrelere verileri yerleştirin
+                    for row in range(row_count):
+                        for col in range(5):
+                            item = QTableWidgetItem(str(rows[row][col]))
+                            self.summaryTableValuesWidget.setItem(row, col, item)
+        
+        elif project_combotext == "All" and subject_combotext == "All":
+
+            if period == "All":
+
+
+                with sqlite3.connect("pomodoro.db") as db:
+
+                    cursor = db.cursor()
+                    cursor.execute(f"SELECT date, start_time,end_time,success,failure FROM tracking_history WHERE user_id = (SELECT user_id FROM users WHERE user_email = '{self.login}')")
+                    rows = cursor.fetchall()
+                    row_count = len(rows)
+
+                    # Tablo boyutunu ayarlayın
+                    self.summaryTableValuesWidget.setRowCount(row_count)
+                    self.summaryTableValuesWidget.setColumnCount(5)
+
+                    # Hücrelere verileri yerleştirin
+                    for row in range(row_count):
+                        for col in range(5):
+                            item = QTableWidgetItem(str(rows[row][col]))
+                            self.summaryTableValuesWidget.setItem(row, col, item)
+
+
+            elif period == "Today":
+
+
+                with sqlite3.connect("pomodoro.db") as db:
+
+                    cursor = db.cursor()
+                    cursor.execute(f"SELECT date, start_time,end_time,success,failure FROM tracking_history WHERE (user_id = (SELECT user_id FROM users WHERE user_email = '{self.login}')) AND date = '{today.toString('dd-MM-yyyy')}' ")
+                    rows = cursor.fetchall()
+                    row_count = len(rows)
+
+                    # Tablo boyutunu ayarlayın
+                    self.summaryTableValuesWidget.setRowCount(row_count)
+                    self.summaryTableValuesWidget.setColumnCount(5)
+
+                    # Hücrelere verileri yerleştirin
+                    for row in range(row_count):
+                        for col in range(5):
+                            item = QTableWidgetItem(str(rows[row][col]))
+                            self.summaryTableValuesWidget.setItem(row, col, item)
+
+            elif period == "This week":
+
+
+                with sqlite3.connect("pomodoro.db") as db:
+
+                    cursor = db.cursor()
+                    cursor.execute(f"SELECT date, start_time,end_time,success,failure FROM tracking_history WHERE (user_id = (SELECT user_id FROM users WHERE user_email = '{self.login}')) AND date BETWEEN '{before1week.toString('dd-MM-yyyy')}' AND '{today.toString('dd-MM-yyyy')}' ")
+                    rows = cursor.fetchall()
+                    row_count = len(rows)
+
+                    # Tablo boyutunu ayarlayın
+                    self.summaryTableValuesWidget.setRowCount(row_count)
+                    self.summaryTableValuesWidget.setColumnCount(5)
+
+                    # Hücrelere verileri yerleştirin
+                    for row in range(row_count):
+                        for col in range(5):
+                            item = QTableWidgetItem(str(rows[row][col]))
+                            self.summaryTableValuesWidget.setItem(row, col, item)
+
+            elif period == "This month":
+
+                with sqlite3.connect("pomodoro.db") as db:
+
+                    cursor = db.cursor()
+                    cursor.execute(f"SELECT date, start_time,end_time,success,failure FROM tracking_history WHERE (user_id = (SELECT user_id FROM users WHERE user_email = '{self.login}')) AND date BETWEEN '{before1month.toString('dd-MM-yyyy')}' AND '{today.toString('dd-MM-yyyy')}' ")
+                    rows = cursor.fetchall()
+                    row_count = len(rows)
+
+                    # Tablo boyutunu ayarlayın
+                    self.summaryTableValuesWidget.setRowCount(row_count)
+                    self.summaryTableValuesWidget.setColumnCount(5)
+
+                    # Hücrelere verileri yerleştirin
+                    for row in range(row_count):
+                        for col in range(5):
+                            item = QTableWidgetItem(str(rows[row][col]))
+                            self.summaryTableValuesWidget.setItem(row, col, item)
+
+
+
+
+
+
+        elif project_combotext != "All" and subject_combotext == "All":
+
+
+            if period == "All":
+
+                with sqlite3.connect("pomodoro.db") as db:
+
+                    cursor = db.cursor()
+                    cursor.execute(f"SELECT date, start_time,end_time,success,failure FROM tracking_history WHERE (project_id = (SELECT project_id FROM projects WHERE project_name = '{project_combotext}'))")
+                    rows = cursor.fetchall()
+                    row_count = len(rows)
+
+                    # Tablo boyutunu ayarlayın
+                    self.summaryTableValuesWidget.setRowCount(row_count)
+                    self.summaryTableValuesWidget.setColumnCount(5)
+
+                    # Hücrelere verileri yerleştirin
+                    for row in range(row_count):
+                        for col in range(5):
+                            item = QTableWidgetItem(str(rows[row][col]))
+                            self.summaryTableValuesWidget.setItem(row, col, item)
+
+            elif period == "Today":
+
+                with sqlite3.connect("pomodoro.db") as db:
+
+                    cursor = db.cursor()
+                    cursor.execute(f"SELECT date, start_time,end_time,success,failure FROM tracking_history WHERE (project_id = (SELECT project_id FROM projects WHERE project_name = '{project_combotext}')) AND date = '{today.toString('dd-MM-yyyy')}'")
+                    rows = cursor.fetchall()
+                    row_count = len(rows)
+
+                    # Tablo boyutunu ayarlayın
+                    self.summaryTableValuesWidget.setRowCount(row_count)
+                    self.summaryTableValuesWidget.setColumnCount(5)
+
+                    # Hücrelere verileri yerleştirin
+                    for row in range(row_count):
+                        for col in range(5):
+                            item = QTableWidgetItem(str(rows[row][col]))
+                            self.summaryTableValuesWidget.setItem(row, col, item)
+
+            elif period == "This week":
+
+                with sqlite3.connect("pomodoro.db") as db:
+
+                    cursor = db.cursor()
+                    cursor.execute(f"SELECT date, start_time,end_time,success,failure FROM tracking_history WHERE (project_id = (SELECT project_id FROM projects WHERE project_name = '{project_combotext}')) AND date BETWEEN '{before1week.toString('dd-MM-yyyy')}' AND '{today.toString('dd-MM-yyyy')}'")
+                    rows = cursor.fetchall()
+                    row_count = len(rows)
+
+                    # Tablo boyutunu ayarlayın
+                    self.summaryTableValuesWidget.setRowCount(row_count)
+                    self.summaryTableValuesWidget.setColumnCount(5)
+
+                    # Hücrelere verileri yerleştirin
+                    for row in range(row_count):
+                        for col in range(5):
+                            item = QTableWidgetItem(str(rows[row][col]))
+                            self.summaryTableValuesWidget.setItem(row, col, item)
+
+            elif period == "This month":
+
+                with sqlite3.connect("pomodoro.db") as db:
+
+                    cursor = db.cursor()
+                    cursor.execute(f"SELECT date, start_time,end_time,success,failure FROM tracking_history WHERE (project_id = (SELECT project_id FROM projects WHERE project_name = '{project_combotext}')) AND date BETWEEN '{before1month.toString('dd-MM-yyyy')}' AND '{today.toString('dd-MM-yyyy')}'")
+                    rows = cursor.fetchall()
+                    row_count = len(rows)
+
+                    # Tablo boyutunu ayarlayın
+                    self.summaryTableValuesWidget.setRowCount(row_count)
+                    self.summaryTableValuesWidget.setColumnCount(5)
+
+                    # Hücrelere verileri yerleştirin
+                    for row in range(row_count):
+                        for col in range(5):
+                            item = QTableWidgetItem(str(rows[row][col]))
+                            self.summaryTableValuesWidget.setItem(row, col, item)
+
+
+
+
+
+
+
+        else:
+
+            if period == "All":
+
+                with sqlite3.connect("pomodoro.db") as db:
+
+                    cursor = db.cursor()
+                    cursor.execute(f"SELECT date, start_time,end_time,success,failure FROM tracking_history WHERE (project_id = (SELECT project_id FROM projects WHERE project_name = '{project_combotext}')) AND (subject_id = (SELECT subject_id FROM subjects WHERE subject_name = '{subject_combotext}'))")
+                    rows = cursor.fetchall()
+                    row_count = len(rows)
+
+                    # Tablo boyutunu ayarlayın
+                    self.summaryTableValuesWidget.setRowCount(row_count)
+                    self.summaryTableValuesWidget.setColumnCount(5)
+
+                    # Hücrelere verileri yerleştirin
+                    for row in range(row_count):
+                        for col in range(5):
+                            item = QTableWidgetItem(str(rows[row][col]))
+                            self.summaryTableValuesWidget.setItem(row, col, item)
+
+
+            elif period == "Today":
+
+                with sqlite3.connect("pomodoro.db") as db:
+
+                    cursor = db.cursor()
+                    cursor.execute(f"SELECT date, start_time,end_time,success,failure FROM tracking_history WHERE (project_id = (SELECT project_id FROM projects WHERE project_name = '{project_combotext}')) AND (subject_id = (SELECT subject_id FROM subjects WHERE subject_name = '{subject_combotext}')) AND date = '{today.toString('dd-MM-yyyy')}'")
+                    rows = cursor.fetchall()
+                    row_count = len(rows)
+
+                    # Tablo boyutunu ayarlayın
+                    self.summaryTableValuesWidget.setRowCount(row_count)
+                    self.summaryTableValuesWidget.setColumnCount(5)
+
+                    # Hücrelere verileri yerleştirin
+                    for row in range(row_count):
+                        for col in range(5):
+                            item = QTableWidgetItem(str(rows[row][col]))
+                            self.summaryTableValuesWidget.setItem(row, col, item)
+
+            elif period == "This week":
+
+                with sqlite3.connect("pomodoro.db") as db:
+
+                    cursor = db.cursor()
+                    cursor.execute(f"SELECT date, start_time,end_time,success,failure FROM tracking_history WHERE (project_id = (SELECT project_id FROM projects WHERE project_name = '{project_combotext}')) AND (subject_id = (SELECT subject_id FROM subjects WHERE subject_name = '{subject_combotext}')) AND (date BETWEEN '{before1week.toString('dd-MM-yyyy')}' AND '{today.toString('dd-MM-yyyy')}')")
+                    rows = cursor.fetchall()
+                    row_count = len(rows)
+
+                    # Tablo boyutunu ayarlayın
+                    self.summaryTableValuesWidget.setRowCount(row_count)
+                    self.summaryTableValuesWidget.setColumnCount(5)
+
+                    # Hücrelere verileri yerleştirin
+                    for row in range(row_count):
+                        for col in range(5):
+                            item = QTableWidgetItem(str(rows[row][col]))
+                            self.summaryTableValuesWidget.setItem(row, col, item)
+
+            elif period == "This month":
+
+                with sqlite3.connect("pomodoro.db") as db:
+
+                    cursor = db.cursor()
+                    cursor.execute(f"SELECT date, start_time,end_time,success,failure FROM tracking_history WHERE (project_id = (SELECT project_id FROM projects WHERE project_name = '{project_combotext}')) AND (subject_id = (SELECT subject_id FROM subjects WHERE subject_name = '{subject_combotext}')) AND (date BETWEEN '{before1month.toString('dd-MM-yyyy')}' AND '{today.toString('dd-MM-yyyy')}')")
+                    rows = cursor.fetchall()
+                    row_count = len(rows)
+
+                    # Tablo boyutunu ayarlayın
+                    self.summaryTableValuesWidget.setRowCount(row_count)
+                    self.summaryTableValuesWidget.setColumnCount(5)
+
+                    # Hücrelere verileri yerleştirin
+                    for row in range(row_count):
+                        for col in range(5):
+                            item = QTableWidgetItem(str(rows[row][col]))
+                            self.summaryTableValuesWidget.setItem(row, col, item)
+
+
+<<<<<<< HEAD
     
+=======
+    # def delete_recipient_emails(self):
+    #     recipient_text = self.deleteRecipientCombo.currentText() 
+        
+    #     with sqlite3.connect("Database//pomodoro_database.db") as db: 
+    #         cursor2 = db.cursor()
+    #         cursor2.execute("DELETE FROM recipients WHERE resipients_email = ?", (recipients_text,)) 
+    #     self.deleteRecipientCombo.currentText.clear()
+    #     UI.go_main_menu()
+>>>>>>> dafc24726c5079fa2a98701ca064b4e285c5aae3
 
 
 # =================================================================
 
 
-
 class PomodoroUI(QDialog):
 
-    def __init__(self,login):
+    def __init__(self,login,pomodoro_project,currentsubject):
         super(PomodoroUI,self).__init__()
         loadUi("UI//pomodoro.ui",self)
 
-        
         self.login = login
+        self.pomodoro_project = pomodoro_project
+        self.currentsubject = currentsubject
         self.goToMainMenuButton.clicked.connect(UI.go_main_menu)
         self.startStopButton.clicked.connect(self.start_button)
         self.doneButton.clicked.connect(self.done_button)
@@ -368,6 +832,24 @@ class PomodoroUI(QDialog):
         self.count_seconds = 5
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_count)
+
+
+
+        # ----------------çalışma alanım---------------------------------------
+        # self.aaa = MainMenuUI(self.login)
+        # pomodoro_project = aaa.pomodoro_project
+
+        # print(pomodoro_project)
+
+    # def use_current_text(self):
+        # print(self.pomodoro_project)
+        # print(self.currentsubject)
+
+
+        
+
+
+        # ----------------------------------------------------------------
 
 
 
@@ -388,10 +870,12 @@ class PomodoroUI(QDialog):
 
 
 
-
-
         self.sayac = 0
     def start_button(self):
+        
+
+
+        # print(self.pomodoro_project)
         self.startStopButton.setEnabled(False)
 
         # sayac()
@@ -399,6 +883,10 @@ class PomodoroUI(QDialog):
         # print(self.pomodoro_session)
 
         self.timer.start(1000)
+
+        # pomodoro_project = self.pomodoro_project
+        # print(pomodoro_project)
+
         
 
         with sqlite3.connect("pomodoro.db") as db:
@@ -407,11 +895,12 @@ class PomodoroUI(QDialog):
             user_id = cursor.fetchone()[0]
 
             cursor = db.cursor()
-            cursor.execute("SELECT project_id FROM projects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)", (self.login,))
+            cursor.execute("SELECT project_id FROM projects WHERE (project_name = ?) AND (user_id = (SELECT user_id FROM users WHERE user_email = ?))", (self.pomodoro_project,self.login,))
             project_id = cursor.fetchone()[0]
+            
 
             cursor = db.cursor()
-            cursor.execute("SELECT subject_id FROM subjects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)", (self.login,))
+            cursor.execute("SELECT subject_id FROM subjects WHERE (subject_name = ?) AND (user_id = (SELECT user_id FROM users WHERE user_email = ?))", (self.currentsubject,self.login,))
             subject_id = cursor.fetchone()[0]
 
 
@@ -494,7 +983,7 @@ class PomodoroUI(QDialog):
         add_task = self.taskInput.text()
 
 
-        print(combotext,combotext1)
+        # print(combotext,combotext1)
 
         with sqlite3.connect("pomodoro.db") as db:
 

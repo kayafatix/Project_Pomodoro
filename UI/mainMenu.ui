@@ -914,12 +914,12 @@ border-radius:40px;
       <property name="styleSheet">
        <string notr="true"/>
       </property>
-      <item>
+      <!-- <item>
        <property name="text">
         <string>All</string>
        </property>
-      </item>
-      <item>
+      </item> -->
+      <!-- <item>
        <property name="text">
         <string>project01</string>
        </property>
@@ -933,7 +933,7 @@ border-radius:40px;
        <property name="text">
         <string>project03</string>
        </property>
-      </item>
+      </item> -->
      </widget>
      <widget class="QLabel" name="showSummaryProjectText">
       <property name="geometry">
@@ -1026,12 +1026,12 @@ border-radius:40px;
       <property name="styleSheet">
        <string notr="true"/>
       </property>
-      <item>
+      <!-- <item>
        <property name="text">
         <string>All</string>
        </property>
-      </item>
-      <item>
+      </item> -->
+      <!-- <item>
        <property name="text">
         <string>Subject01</string>
        </property>
@@ -1045,7 +1045,7 @@ border-radius:40px;
        <property name="text">
         <string>Subject03</string>
        </property>
-      </item>
+      </item> -->
      </widget>
      <widget class="QComboBox" name="showSummaryPeriodCombo">
       <property name="geometry">
@@ -1321,7 +1321,7 @@ text-align: center;</string>
         </color>
        </property>
       </column>
-      <item row="0" column="0">
+      <!-- <item row="0" column="0">
        <property name="text">
         <string>25/09/2022</string>
        </property>
@@ -1370,7 +1370,7 @@ text-align: center;</string>
        <property name="text">
         <string/>
        </property>
-      </item>
+      </item> -->
      </widget>
     </widget>
     <widget class="QWidget" name="totalTrackedTimeWidget" native="true">
