@@ -350,7 +350,7 @@ color:rgb(255, 255, 255);</string>
       <property name="styleSheet">
        <string notr="true"/>
       </property>
-      <item>
+      <!-- <item>
        <property name="text">
         <string>bahadir_friend@mail.com</string>
        </property>
@@ -364,7 +364,7 @@ color:rgb(255, 255, 255);</string>
        <property name="text">
         <string>bahadir_boss@mail.com</string>
        </property>
-      </item>
+      </item> -->
      </widget>
      <widget class="QLineEdit" name="addRecipientInput">
       <property name="geometry">
