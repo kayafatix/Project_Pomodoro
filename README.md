@@ -19,7 +19,6 @@ Kayıt olma düğmesine tıklandığında çağrılır. Kullanıcının girdiği
 
  Giriş düğmesine tıklandığında çağrılır. "pomodoro.db" veritabanıyla bağlantı kurulur. Kullanıcının girdiği e-posta adresi (self.login) alınır. Tüm kullanıcıları içeren bir sorgu çalıştırılır ve sonuçlar üzerinde döngüye girilir. Eğer giriş alanı boş ise veya içinde "@" sembolü yoksa, hata mesajı metin kutusuna "For login please enter a valid email address!" şeklinde bir uyarı yazılır. Eğer giriş alanı, veritabanındaki kullanıcılardan biriyle eşleşiyorsa, go_main_menu() metoduna gidilir ve döngü kırılır. Aksi takdirde, hata mesajı metin kutusuna "Sorry, your email address is not registered!" şeklinde bir uyarı yazılır.
 
-Kodların geri kalan kısmı açıklanmadığı için, tam olarak neler yapıldığına dair bir yorum yapılamaz.
 
 
 
