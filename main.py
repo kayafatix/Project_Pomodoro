@@ -7,7 +7,7 @@ import sys
 import re
 import threading
 import time
-
+import datetime
 from PyQt5.QtCore import QTime, QTimer, QDate, Qt
 
 
@@ -152,7 +152,41 @@ class MainMenuUI(QDialog):
                 # print(i)
                 self.deleteRecipientCombo.addItem(i[0])
 
-    # ---------------------------------------------------------------- SubjectComboBox ----------------------------------------------------------------
+    # -------------------------------------------------------------All All All---------------------------------------------------------------------------------------
+        with sqlite3.connect("pomodoro.db") as db:
+
+            cursor = db.cursor()
+            cursor.execute(f"SELECT date, start_time,end_time,success,failure FROM tracking_history WHERE user_id = (SELECT user_id FROM users WHERE user_email = '{self.login}')")
+            rows = cursor.fetchall()
+            row_count = len(rows)
+
+            self.summaryTableValuesWidget.setRowCount(row_count)
+            self.summaryTableValuesWidget.setColumnCount(5)
+
+            for row in range(row_count):
+                for col in range(5):
+                    item = QTableWidgetItem(str(rows[row][col]))
+                    self.summaryTableValuesWidget.setItem(row, col, item)    
+    
+    # -------------------------------------------------------------------Time Difference---------------------------------------------------------------
+        with sqlite3.connect("pomodoro.db") as db:
+            cursor = db.cursor()
+            cursor.execute("SELECT start_time,end_time FROM tracking_history WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)",(self.login,))
+            rows = cursor.fetchall()
+            # print(rows)
+
+        total_difference = datetime.timedelta()
+
+        for i in rows:
+            start_time = datetime.datetime.strptime(i[0], "%H:%M:%S")
+            end_time = datetime.datetime.strptime(i[1], "%H:%M:%S")  
+            time_difference = end_time - start_time  
+            total_difference += time_difference
+
+        # print(total_difference)
+        self.totalTrackedTimeDurationLabel.setText(str(total_difference)) 
+# -------------------------------------------------------------------------------------------------------------------------------------------------------
+    
     def updateSubjectCombo(self, selectedProject):
             
             self.pomodoro_project = selectedProject
@@ -376,6 +410,8 @@ class MainMenuUI(QDialog):
         today = Qtoday.addDays(0)
         before1week = Qtoday.addDays(-7)
         before1month = Qtoday.addMonths(-1)
+
+
 
         if project_combotext == "All" and subject_combotext != "All":
 
@@ -732,12 +768,12 @@ class PomodoroUI(QDialog):
         
 
         if po_session % 4 == 0:
-                longbreak = LongBreakUI(self.login)
+                longbreak = LongBreakUI(self.login,self.pomodoro_project,self.currentsubject)
                 widget.addWidget(longbreak)
                 widget.setCurrentIndex(widget.currentIndex()+1)
                 sayac()
         else:
-            shortbreak = ShortBreakUI(self.login)
+            shortbreak = ShortBreakUI(self.login,self.pomodoro_project,self.currentsubject)
             widget.addWidget(shortbreak)
             widget.setCurrentIndex(widget.currentIndex()+1)
             sayac()
@@ -810,11 +846,14 @@ class PomodoroUI(QDialog):
 
 
 class ShortBreakUI(QDialog):
-    def __init__(self,login):
+    def __init__(self,login,pomodoro_project,currentsubject):
         super(ShortBreakUI,self).__init__()
         loadUi("UI//shortBreak.ui",self)
         
         self.login = login
+        self.pomodoro_project = pomodoro_project
+        self.currentsubject = currentsubject
+        # self.currentsubject = currentsubject
         self.goToMainMenuButton.clicked.connect(UI.go_main_menu)
         self.startButton.clicked.connect(self.short_break)
         self.skipButton.clicked.connect(self.skip_button)
@@ -831,9 +870,7 @@ class ShortBreakUI(QDialog):
         if self.count_minutes == 0 and self.count_seconds == 0:
             self.timer.stop()
             self.accept()
-            pomodoro_menu = PomodoroUI(self.login)
-            widget.addWidget(pomodoro_menu)
-            widget.setCurrentIndex(widget.currentIndex()+1)
+            MainMenuUI.go_pomodoro_menu(self)
         else:
             if self.count_seconds == 0:
                 self.count_minutes -= 1
@@ -844,20 +881,24 @@ class ShortBreakUI(QDialog):
 
     def skip_button(self):
 
-        pomodoro_menu = PomodoroUI(self.login)
-        widget.addWidget(pomodoro_menu)
-        widget.setCurrentIndex(widget.currentIndex()+1)         
+        MainMenuUI.go_pomodoro_menu(self)
+
+        # pomodoro_menu = PomodoroUI(self.login)
+        # widget.addWidget(pomodoro_menu)
+        # widget.setCurrentIndex(widget.currentIndex()+1)         
 
 
 # =================================================================
 
 
 class LongBreakUI(QDialog):
-    def __init__(self,login):
+    def __init__(self,login,pomodoro_project,currentsubject):
         super(LongBreakUI,self).__init__()
         loadUi("UI//longBreak.ui",self)
 
         self.login = login
+        self.pomodoro_project = pomodoro_project
+        self.currentsubject = currentsubject
         self.goToMainMenuButton.clicked.connect(UI.go_main_menu)
         self.startButton.clicked.connect(self.long_break)
         self.skipButton.clicked.connect(self.skip_button)
@@ -874,9 +915,7 @@ class LongBreakUI(QDialog):
         if self.count_minutes == 0 and self.count_seconds == 0:
             self.timer.stop()
             self.accept()
-            pomodoro_menu = PomodoroUI(self.login)
-            widget.addWidget(pomodoro_menu)
-            widget.setCurrentIndex(widget.currentIndex()+1)
+            MainMenuUI.go_pomodoro_menu(self)
         else:
             if self.count_seconds == 0:
                 self.count_minutes -= 1
@@ -887,9 +926,7 @@ class LongBreakUI(QDialog):
 
     def skip_button(self):
 
-        pomodoro_menu = PomodoroUI(self.login)
-        widget.addWidget(pomodoro_menu)
-        widget.setCurrentIndex(widget.currentIndex()+1)
+        MainMenuUI.go_pomodoro_menu(self)
 
 
 
