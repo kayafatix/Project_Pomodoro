@@ -1180,7 +1180,9 @@ border-radius:0px;
       <property name="styleSheet">
        <string notr="true">background-color:rgba(88, 128, 63, 128);
 font: 13pt &quot;Chalkboard&quot;;
-text-align: center;</string>
+text-align: center;
+color: black;
+</string>
       </property>
       <property name="sizeAdjustPolicy">
        <enum>QAbstractScrollArea::AdjustIgnored</enum>
@@ -1289,7 +1291,7 @@ text-align: center;</string>
       </column>
       <column>
        <property name="text">
-        <string>Success (Tasks)</string>
+        <string>Success</string>
        </property>
        <property name="font">
         <font>
@@ -1306,7 +1308,7 @@ text-align: center;</string>
       </column>
       <column>
        <property name="text">
-        <string>Failure (Tasks)</string>
+        <string>Failure</string>
        </property>
        <property name="font">
         <font>

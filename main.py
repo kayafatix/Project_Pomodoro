@@ -99,7 +99,7 @@ class MainMenuUI(QDialog):
         self.addSubjectButton.clicked.connect(self.add_new_subject)
         self.addRecipientButton.clicked.connect(self.add_new_Recipient)
         
-        self.startPomodoroButton.clicked.connect(self.start_pomodoro)
+        self.startPomodoroButton.clicked.connect(self.go_pomodoro_menu)
         
         self.projectDeleteButton.clicked.connect(self.delete_project)
         self.subjectDeleteButton.clicked.connect(self.delete_subject)
@@ -148,7 +148,7 @@ class MainMenuUI(QDialog):
             cursor.execute(query)
             projects1 = cursor.fetchall()
             for i in projects1:
-                print(i)
+                # print(i)
                 self.deleteRecipientCombo.addItem(i[0])
 
     # ---------------------------------------------------------------- SubjectComboBox ----------------------------------------------------------------
@@ -322,7 +322,7 @@ class MainMenuUI(QDialog):
         print(f"The Subject named {combotext} has been successfully added.")
     
         
-    def start_pomodoro(self):        
+    def go_pomodoro_menu(self):        
 
         pomodoro_menu = PomodoroUI(self.login,self.pomodoro_project,self.currentsubject)
         widget.addWidget(pomodoro_menu)
@@ -389,8 +389,7 @@ class MainMenuUI(QDialog):
         
         with sqlite3.connect("pomodoro.db") as db: 
             cursor = db.cursor()
-            cursor.execute("DELETE FROM recipients WHERE recipients_email = ?", (combotext,)) 
-                   
+            cursor.execute("DELETE FROM recipients WHERE recipients_email = ?", (combotext,))                  
         # self.deleteRecipientCombo.currentText.clear()
             UI.go_main_menu()
             self.errorTextRecipientsEmailLabel.setText(f"{combotext} deleted successfully.")
@@ -795,10 +794,10 @@ class PomodoroUI(QDialog):
 
     # ---------------------------------------------------------------- TasksComboBox ----------------------------------------------------------------
 
-        query = "SELECT task_name FROM tasks WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)"
+        query = "SELECT task_name FROM tasks WHERE (subject_id = (SELECT subject_id FROM subjects WHERE subject_name = ?)) AND (user_id = (SELECT user_id FROM users WHERE user_email = ?))"
         with sqlite3.connect("pomodoro.db") as db:
             cursor = db.cursor()
-            cursor.execute(query, (self.login,))
+            cursor.execute(query, (self.currentsubject,self.login,))
             projects = cursor.fetchall()
             for i in projects:
                 self.tasksCombo.addItem(i[0])
@@ -911,14 +910,7 @@ class PomodoroUI(QDialog):
         return self.date_text
     
     def add_task_button(self):
-        combo = MainMenuUI(self.login)
-        combotext = combo.selectProjectCombo.currentText()
-        combotext1 = combo.selectSubjectCombo.currentText()
-        add_task = self.taskInput.text()
-
-
-        # print(combotext,combotext1)
-
+        add_task = self.taskInput.text() 
         with sqlite3.connect("pomodoro.db") as db:
 
             cursor = db.cursor()
@@ -926,25 +918,20 @@ class PomodoroUI(QDialog):
             user_id = cursor.fetchone()[0]            
             
             cursor1 = db.cursor()
-            cursor1.execute("SELECT project_id FROM projects WHERE project_name = ?",(combotext,))
+            cursor1.execute("SELECT project_id FROM projects WHERE project_name = ?",(self.pomodoro_project,))
             project_id = cursor1.fetchone()[0]
 
             cursor1 = db.cursor()
-            cursor1.execute("SELECT subject_id FROM subjects WHERE subject_name = ?",(combotext1,))
+            cursor1.execute("SELECT subject_id FROM subjects WHERE subject_name = ?",(self.currentsubject,))
             subject_id = cursor1.fetchone()[0]
 
             im = db.cursor()
             im.execute("INSERT INTO tasks(user_id,project_id,subject_id,task_name) VALUES (?,?,?,?)",(user_id,project_id,subject_id,add_task,))
-            
+
+        QTimer.singleShot(500, lambda: MainMenuUI.go_pomodoro_menu(self))
         
 
-
-
-
 # =================================================================
-
-
-
 
 
 class ShortBreakUI(QDialog):
