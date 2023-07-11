@@ -9,7 +9,7 @@ import threading
 import time
 
 from PyQt5.QtCore import QTime, QTimer, QDate, Qt
-# from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
+
 
 po_session = 1
 
@@ -99,39 +99,20 @@ class MainMenuUI(QDialog):
         self.addSubjectButton.clicked.connect(self.add_new_subject)
         self.addRecipientButton.clicked.connect(self.add_new_Recipient)
         
-        self.startPomodoroButton.clicked.connect(self.start_pomodoro)
+        self.startPomodoroButton.clicked.connect(self.go_pomodoro_menu)
         
         self.projectDeleteButton.clicked.connect(self.delete_project)
         self.subjectDeleteButton.clicked.connect(self.delete_subject)
+        self.deleteRecipientButton.clicked.connect(self.delete_recipient_emails)
 
-        self.errorTextProjectLabel.setText("")
+        # self.errorTextProjectLabel.setText("")
         self.errorTextSubjectLabel.setText("")
-        self.errorTextRecipientsEmailLabel.setText("Enter an email to add Recipients")
-        
-        
+        self.errorTextRecipientsEmailLabel.setText("")
         self.selectProjectCombo.currentTextChanged.connect(self.updateSubjectCombo)
         self.projectDeleteCombo.currentTextChanged.connect(self.updateDeleteSubjectCombo)
-
         self.selectSubjectCombo.currentTextChanged.connect(self.updatecafercombo)
-
-
-        
         self.showSummaryProjectCombo.currentTextChanged.connect(self.updateSummarySubjectCombo)
-
-
-
         self.showSummaryButton.clicked.connect(self.show_summary)
-
-
-    
-
-        # print(self.currentList)
-
-        # self.db = None
-
-
-
-
 
         query = "SELECT name FROM users WHERE user_email = ?"
         with sqlite3.connect("pomodoro.db") as db:
@@ -146,8 +127,7 @@ class MainMenuUI(QDialog):
             cursor = db.cursor()
             cursor.execute(query1, (self.login,))
             projects = cursor.fetchall()
-            for i in projects:
-                 
+            for i in projects:                
                 self.addSubjectOnProjectCombo.addItem(i[0])
 
     # ---------------------------------------------------------------- ProjectComboBox2 ----------------------------------------------------------------
@@ -160,7 +140,19 @@ class MainMenuUI(QDialog):
                 # print(i)
                 self.selectProjectCombo.addItem(i[0])
                 self.projectDeleteCombo.addItem(i[0])
+    # ---------------------------------------------------------------- Recipients Combobox ----------------------------------------------------------------
 
+        query = "SELECT recipients_email FROM recipients"
+        with sqlite3.connect("pomodoro.db") as db:
+            cursor = db.cursor()
+            cursor.execute(query)
+            projects1 = cursor.fetchall()
+            for i in projects1:
+                # print(i)
+                self.deleteRecipientCombo.addItem(i[0])
+
+    # ---------------------------------------------------------------- SubjectComboBox ----------------------------------------------------------------
+     
     # ---------------------------------------------------------------- ProjectComboBox2 ----------------------------------------------------------------
         
         # self.currentList = []
@@ -258,7 +250,8 @@ class MainMenuUI(QDialog):
 
 
 
-
+    # def clock(self):
+    #     self.errorTextProjectLabel.setText("successfully added.")
     
 
     # ---------------------------------------------------------------- SummarySubjecttCombo ----------------------------------------------------------------
@@ -267,10 +260,10 @@ class MainMenuUI(QDialog):
         
         project_name = self.addProjectInput.text()
         with sqlite3.connect("pomodoro.db") as db:
-                cursor_1 = db.cursor()
-                cursor_1.execute("SELECT project_name FROM projects")
-                all_projects = [i[0] for i in cursor_1.fetchall()]
-                # print(all_projects)
+            cursor_1 = db.cursor()
+            cursor_1.execute("SELECT project_name FROM projects")
+            all_projects = [i[0] for i in cursor_1.fetchall()]
+            # print(all_projects)
         
         if project_name == "":
             self.errorTextProjectLabel.setText("Enter a project name")
@@ -278,7 +271,6 @@ class MainMenuUI(QDialog):
         elif project_name in all_projects:
             self.errorTextProjectLabel.setText(f"{project_name} already exists")
     
-            
         else:
             
             with sqlite3.connect("pomodoro.db") as db:
@@ -287,35 +279,50 @@ class MainMenuUI(QDialog):
                 user_id = cursor.fetchone()[0]
                 im = db.cursor()
                 im.execute("INSERT INTO projects(project_name, user_id) VALUES (?, ?)", (project_name, user_id))
-                self.errorTextProjectLabel.setText(f"'{project_name}' successfully added.")
+            self.errorTextProjectLabel.setText(f"'{project_name}' successfully added.")
+            QTimer.singleShot(2000, UI.go_main_menu)
+            # UI.go_main_menu()
+
         
         # time.sleep(0.5)    
-                
         # UI.go_main_menu()         
-
 
     def add_new_subject(self):
         subject_name = self.addSubjectInput.text()
-        with sqlite3.connect("pomodoro.db") as db:
-            cursor = db.cursor()
-            cursor.execute("SELECT user_id FROM users WHERE user_email = ?",(self.login,))
-            user_id = cursor.fetchone()[0]
-
-
-            combotext = self.addSubjectOnProjectCombo.currentText()
-            cursor1 = db.cursor()
-            cursor1.execute("SELECT project_id FROM projects WHERE project_name = ?",(combotext,))
-            project_id = cursor1.fetchone()[0]
-
-            
-            im = db.cursor()
-            im.execute("INSERT INTO subjects(subject_name,user_id,project_id) VALUES (?,?,?)",(subject_name,user_id,project_id,))
         
+        with sqlite3.connect("pomodoro.db") as db:
+            cursor_2 = db.cursor()
+            cursor_2.execute("SELECT subject_name FROM subjects")
+            all_subjects = [i[0] for i in cursor_2.fetchall()]
+            print(all_subjects)
+            
+            if subject_name not in all_subjects:
+                with sqlite3.connect("pomodoro.db") as db:
+                    cursor = db.cursor()
+                    cursor.execute("SELECT user_id FROM users WHERE user_email = ?",(self.login,))
+                    user_id = cursor.fetchone()[0]
 
+                    combotext = self.addSubjectOnProjectCombo.currentText()
+                    cursor1 = db.cursor()
+                    cursor1.execute("SELECT project_id FROM projects WHERE project_name = ?",(combotext,))
+                    project_id = cursor1.fetchone()[0]
+                        
+                    im = db.cursor()
+                    im.execute("INSERT INTO subjects(subject_name,user_id,project_id) VALUES (?,?,?)",(subject_name,user_id,project_id,))
+                    self.errorTextSubjectLabel.setText("Subject added.")                    
+                    
+            elif subject_name in all_subjects:
+                self.errorTextSubjectLabel.setText("Subject already exists")
+                    
+            else:
+                self.errorTextSubjectLabel.setText("enter a subject")    
+                
+            UI.go_main_menu()
+            
         print(f"The Subject named {combotext} has been successfully added.")
     
         
-    def start_pomodoro(self):        
+    def go_pomodoro_menu(self):        
 
         pomodoro_menu = PomodoroUI(self.login,self.pomodoro_project,self.currentsubject)
         widget.addWidget(pomodoro_menu)
@@ -324,8 +331,6 @@ class MainMenuUI(QDialog):
     def delete_project(self):
 
         combotext = self.projectDeleteCombo.currentText()
-
-
 
         with sqlite3.connect("pomodoro.db") as db:
 
@@ -346,7 +351,7 @@ class MainMenuUI(QDialog):
 
             cursor = db.cursor()
             cursor.execute("DELETE FROM subjects WHERE subject_name = ?", (combotext1,))
-                   
+
         # self.projectDeleteCombo.currentText.clear()
         UI.go_main_menu()
 
@@ -355,7 +360,7 @@ class MainMenuUI(QDialog):
         
         # is_valid_email = lambda email: True if re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email) else False
         
-        if self.recipients_email == "":
+        if self.recipients_email == "a":
             self.errorTextRecipientsEmailLabel.setText("email fields cannot be left blank!")
             
         elif "@" in self.recipients_email:
@@ -378,6 +383,16 @@ class MainMenuUI(QDialog):
             self.errorTextRecipientsEmailLabel.setText("Sorry, your mail address must include '@' character")
         
         UI.go_main_menu()
+
+    def delete_recipient_emails(self):
+        combotext = self.deleteRecipientCombo.currentText() 
+        
+        with sqlite3.connect("pomodoro.db") as db: 
+            cursor = db.cursor()
+            cursor.execute("DELETE FROM recipients WHERE recipients_email = ?", (combotext,))                  
+        # self.deleteRecipientCombo.currentText.clear()
+            UI.go_main_menu()
+            self.errorTextRecipientsEmailLabel.setText(f"{combotext} deleted successfully.")
 
     def show_summary(self):
 
@@ -751,14 +766,7 @@ class MainMenuUI(QDialog):
                             self.summaryTableValuesWidget.setItem(row, col, item)
 
 
-    # def delete_recipient_emails(self):
-    #     recipient_text = self.deleteRecipientCombo.currentText() 
-        
-    #     with sqlite3.connect("Database//pomodoro_database.db") as db: 
-    #         cursor2 = db.cursor()
-    #         cursor2.execute("DELETE FROM recipients WHERE resipients_email = ?", (recipients_text,)) 
-    #     self.deleteRecipientCombo.currentText.clear()
-    #     UI.go_main_menu()
+    
 
 
 # =================================================================
@@ -784,46 +792,21 @@ class PomodoroUI(QDialog):
         self.timer.timeout.connect(self.update_count)
 
 
-
-        # ----------------çalışma alanım---------------------------------------
-        # self.aaa = MainMenuUI(self.login)
-        # pomodoro_project = aaa.pomodoro_project
-
-        # print(pomodoro_project)
-
-    # def use_current_text(self):
-        # print(self.pomodoro_project)
-        # print(self.currentsubject)
-
-
-        
-
-
-        # ----------------------------------------------------------------
-
-
-
-        # self.pomodoro_session = 0
-        
-
     # ---------------------------------------------------------------- TasksComboBox ----------------------------------------------------------------
 
-        query = "SELECT task_name FROM tasks WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)"
+        query = "SELECT task_name FROM tasks WHERE (subject_id = (SELECT subject_id FROM subjects WHERE subject_name = ?)) AND (user_id = (SELECT user_id FROM users WHERE user_email = ?))"
         with sqlite3.connect("pomodoro.db") as db:
             cursor = db.cursor()
-            cursor.execute(query, (self.login,))
+            cursor.execute(query, (self.currentsubject,self.login,))
             projects = cursor.fetchall()
             for i in projects:
                 self.tasksCombo.addItem(i[0])
     # ---------------------------------------------------------------- TasksComboBox ----------------------------------------------------------------
 
 
-
-
         self.sayac = 0
     def start_button(self):
         
-
 
         # print(self.pomodoro_project)
         self.startStopButton.setEnabled(False)
@@ -927,14 +910,7 @@ class PomodoroUI(QDialog):
         return self.date_text
     
     def add_task_button(self):
-        combo = MainMenuUI(self.login)
-        combotext = combo.selectProjectCombo.currentText()
-        combotext1 = combo.selectSubjectCombo.currentText()
-        add_task = self.taskInput.text()
-
-
-        # print(combotext,combotext1)
-
+        add_task = self.taskInput.text() 
         with sqlite3.connect("pomodoro.db") as db:
 
             cursor = db.cursor()
@@ -942,25 +918,20 @@ class PomodoroUI(QDialog):
             user_id = cursor.fetchone()[0]            
             
             cursor1 = db.cursor()
-            cursor1.execute("SELECT project_id FROM projects WHERE project_name = ?",(combotext,))
+            cursor1.execute("SELECT project_id FROM projects WHERE project_name = ?",(self.pomodoro_project,))
             project_id = cursor1.fetchone()[0]
 
             cursor1 = db.cursor()
-            cursor1.execute("SELECT subject_id FROM subjects WHERE subject_name = ?",(combotext1,))
+            cursor1.execute("SELECT subject_id FROM subjects WHERE subject_name = ?",(self.currentsubject,))
             subject_id = cursor1.fetchone()[0]
 
             im = db.cursor()
             im.execute("INSERT INTO tasks(user_id,project_id,subject_id,task_name) VALUES (?,?,?,?)",(user_id,project_id,subject_id,add_task,))
-            
+
+        QTimer.singleShot(500, lambda: MainMenuUI.go_pomodoro_menu(self))
         
 
-
-
-
 # =================================================================
-
-
-
 
 
 class ShortBreakUI(QDialog):

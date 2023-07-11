@@ -253,7 +253,7 @@ color:rgb(255, 255, 255);</string>
       <property name="styleSheet">
        <string notr="true"/>
       </property>
-      <item>
+      <!-- <item>
        <property name="text">
         <string>subject01</string>
        </property>
@@ -267,7 +267,7 @@ color:rgb(255, 255, 255);</string>
        <property name="text">
         <string>subject03</string>
        </property>
-      </item>
+      </item> -->
      </widget>
     </widget>
     <widget class="QWidget" name="recipientsWidget" native="true">
@@ -586,9 +586,9 @@ color:rgb(255, 255, 255);</string>
        <string notr="true">background-color: rgba(255, 255, 255, 0);
 color:black;</string>
       </property>
-      <property name="text">
+      <!-- <property name="text">
        <string>error text</string>
-      </property>
+      </property> -->
      </widget>
     </widget>
     <widget class="QWidget" name="selectProjectSubjectWidget" native="true">

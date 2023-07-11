@@ -140,6 +140,7 @@ class MainMenuUI(QDialog):
                 # print(i)
                 self.selectProjectCombo.addItem(i[0])
                 self.projectDeleteCombo.addItem(i[0])
+
     # ---------------------------------------------------------------- Recipients Combobox ----------------------------------------------------------------
 
         query = "SELECT recipients_email FROM recipients"
@@ -150,18 +151,6 @@ class MainMenuUI(QDialog):
             for i in projects1:
                 # print(i)
                 self.deleteRecipientCombo.addItem(i[0])
-
-    # ---------------------------------------------------------------- SubjectComboBox ----------------------------------------------------------------
-     
-    # ---------------------------------------------------------------- ProjectComboBox2 ----------------------------------------------------------------
-        
-        # self.currentList = []
-        # currentproject = self.selectProjectCombo.currentText()
-        # 
-        # self.currentList.append(currentproject)
-        # self.currentList.append(currentsubject)
-
-
 
     # ---------------------------------------------------------------- SubjectComboBox ----------------------------------------------------------------
     def updateSubjectCombo(self, selectedProject):
@@ -186,11 +175,7 @@ class MainMenuUI(QDialog):
 
     # def pomodoro_project_method(self):
     #     print(self.pomodoro_project)
-    
-    
-
-
-    # ---------------------------------------------------------------- SubjectComboBox ----------------------------------------------------------------
+    # ---------------------------------------------------------------- SubjectDeleteComboBox ----------------------------------------------------------------
     def updateDeleteSubjectCombo(self, selected_Project):
 
         with sqlite3.connect("pomodoro.db") as db:            
@@ -202,7 +187,6 @@ class MainMenuUI(QDialog):
             for i in subjects_delete:                                
                 self.subjectDeleteCombo.addItem(i[0])
 
-
     # ---------------------------------------------------------------- SummaryProjectCombo ----------------------------------------------------------------
         query3 = "SELECT project_name FROM projects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)"
         with sqlite3.connect("pomodoro.db") as db:
@@ -213,10 +197,7 @@ class MainMenuUI(QDialog):
             for i in self.project_summary:
                 # print(i)
                 self.showSummaryProjectCombo.addItem(i[0])
-    # ---------------------------------------------------------------- SummaryProjectCombo ----------------------------------------------------------------
     
-
-
     # ---------------------------------------------------------------- SummarySubjecttCombo ----------------------------------------------------------------
 
     def updateSummarySubjectCombo(self, selectedSummaryProject):
@@ -247,21 +228,15 @@ class MainMenuUI(QDialog):
                     for i in subjects:
                         # print(i)
                         self.showSummarySubjectCombo.addItem(i[0])
-
-
-
-    # def clock(self):
-    #     self.errorTextProjectLabel.setText("successfully added.")
     
-
-    # ---------------------------------------------------------------- SummarySubjecttCombo ----------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------------------------------------------
 
     def add_new_Project(self):
         
         project_name = self.addProjectInput.text()
         with sqlite3.connect("pomodoro.db") as db:
             cursor_1 = db.cursor()
-            cursor_1.execute("SELECT project_name FROM projects")
+            cursor_1.execute("SELECT project_name FROM projects WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)",(self.login,))
             all_projects = [i[0] for i in cursor_1.fetchall()]
             # print(all_projects)
         
@@ -282,8 +257,6 @@ class MainMenuUI(QDialog):
             self.errorTextProjectLabel.setText(f"'{project_name}' successfully added.")
             QTimer.singleShot(2000, UI.go_main_menu)
             # UI.go_main_menu()
-
-        
         # time.sleep(0.5)    
         # UI.go_main_menu()         
 
@@ -320,8 +293,7 @@ class MainMenuUI(QDialog):
             UI.go_main_menu()
             
         print(f"The Subject named {combotext} has been successfully added.")
-    
-        
+
     def go_pomodoro_menu(self):        
 
         pomodoro_menu = PomodoroUI(self.login,self.pomodoro_project,self.currentsubject)
@@ -399,46 +371,11 @@ class MainMenuUI(QDialog):
         project_combotext = self.showSummaryProjectCombo.currentText()
         subject_combotext = self.showSummarySubjectCombo.currentText()
         period = self.showSummaryPeriodCombo.currentText()
-        # print(type(project_combotext))
-        # print(subject_combotext)
-        # print(PomodoroUI.show_date(self)[:2])
-
 
         Qtoday = QDate.currentDate()
         today = Qtoday.addDays(0)
-        # print(today.toString('dd-MM-yyyy'))
         before1week = Qtoday.addDays(-7)
         before1month = Qtoday.addMonths(-1)
-
-        # print(before1month.toString('dd-MM-yyyy'))
-
-
-        
-
-        # print(before1week.toString('dd-MM-yyyy'))
-        # print(today.toString('dd-MM-MM'))
-
-
-
-        # c_date = PomodoroUI.show_date(self)[:2]
-        # print(c_date)
-        # caferrrr = str(10)
-
-        # with sqlite3.connect("pomodoro.db") as db:
-        #     cursor = db.cursor()
-        #     cursor.execute(f"SELECT date FROM tracking_history WHERE date BETWEEN '{before1week.toString('dd-MM-yyyy')}' AND '{today.toString('dd-MM-yyy')}'")
-        #     print(cursor.fetchall())
-            
-            
-
-        
-
-        # c_date = PomodoroUI.show_date(self)
-        # print(c_date)
-
-
-
-
 
         if project_combotext == "All" and subject_combotext != "All":
 
@@ -450,11 +387,9 @@ class MainMenuUI(QDialog):
                     rows = cursor.fetchall()
                     row_count = len(rows)
 
-                    # Tablo boyutunu ayarlayın
                     self.summaryTableValuesWidget.setRowCount(row_count)
                     self.summaryTableValuesWidget.setColumnCount(5)
 
-                    # Hücrelere verileri yerleştirin
                     for row in range(row_count):
                         for col in range(5):
                             item = QTableWidgetItem(str(rows[row][col]))
@@ -468,11 +403,9 @@ class MainMenuUI(QDialog):
                     rows = cursor.fetchall()
                     row_count = len(rows)
 
-                    # Tablo boyutunu ayarlayın
                     self.summaryTableValuesWidget.setRowCount(row_count)
                     self.summaryTableValuesWidget.setColumnCount(5)
 
-                    # Hücrelere verileri yerleştirin
                     for row in range(row_count):
                         for col in range(5):
                             item = QTableWidgetItem(str(rows[row][col]))
@@ -486,11 +419,9 @@ class MainMenuUI(QDialog):
                     rows = cursor.fetchall()
                     row_count = len(rows)
 
-                    # Tablo boyutunu ayarlayın
                     self.summaryTableValuesWidget.setRowCount(row_count)
                     self.summaryTableValuesWidget.setColumnCount(5)
 
-                    # Hücrelere verileri yerleştirin
                     for row in range(row_count):
                         for col in range(5):
                             item = QTableWidgetItem(str(rows[row][col]))
@@ -504,11 +435,9 @@ class MainMenuUI(QDialog):
                     rows = cursor.fetchall()
                     row_count = len(rows)
 
-                    # Tablo boyutunu ayarlayın
                     self.summaryTableValuesWidget.setRowCount(row_count)
                     self.summaryTableValuesWidget.setColumnCount(5)
 
-                    # Hücrelere verileri yerleştirin
                     for row in range(row_count):
                         for col in range(5):
                             item = QTableWidgetItem(str(rows[row][col]))
@@ -518,7 +447,6 @@ class MainMenuUI(QDialog):
 
             if period == "All":
 
-
                 with sqlite3.connect("pomodoro.db") as db:
 
                     cursor = db.cursor()
@@ -526,19 +454,15 @@ class MainMenuUI(QDialog):
                     rows = cursor.fetchall()
                     row_count = len(rows)
 
-                    # Tablo boyutunu ayarlayın
                     self.summaryTableValuesWidget.setRowCount(row_count)
                     self.summaryTableValuesWidget.setColumnCount(5)
 
-                    # Hücrelere verileri yerleştirin
                     for row in range(row_count):
                         for col in range(5):
                             item = QTableWidgetItem(str(rows[row][col]))
                             self.summaryTableValuesWidget.setItem(row, col, item)
 
-
             elif period == "Today":
-
 
                 with sqlite3.connect("pomodoro.db") as db:
 
@@ -547,11 +471,9 @@ class MainMenuUI(QDialog):
                     rows = cursor.fetchall()
                     row_count = len(rows)
 
-                    # Tablo boyutunu ayarlayın
                     self.summaryTableValuesWidget.setRowCount(row_count)
                     self.summaryTableValuesWidget.setColumnCount(5)
 
-                    # Hücrelere verileri yerleştirin
                     for row in range(row_count):
                         for col in range(5):
                             item = QTableWidgetItem(str(rows[row][col]))
@@ -567,11 +489,9 @@ class MainMenuUI(QDialog):
                     rows = cursor.fetchall()
                     row_count = len(rows)
 
-                    # Tablo boyutunu ayarlayın
                     self.summaryTableValuesWidget.setRowCount(row_count)
                     self.summaryTableValuesWidget.setColumnCount(5)
 
-                    # Hücrelere verileri yerleştirin
                     for row in range(row_count):
                         for col in range(5):
                             item = QTableWidgetItem(str(rows[row][col]))
@@ -586,19 +506,13 @@ class MainMenuUI(QDialog):
                     rows = cursor.fetchall()
                     row_count = len(rows)
 
-                    # Tablo boyutunu ayarlayın
                     self.summaryTableValuesWidget.setRowCount(row_count)
                     self.summaryTableValuesWidget.setColumnCount(5)
 
-                    # Hücrelere verileri yerleştirin
                     for row in range(row_count):
                         for col in range(5):
                             item = QTableWidgetItem(str(rows[row][col]))
                             self.summaryTableValuesWidget.setItem(row, col, item)
-
-
-
-
 
 
         elif project_combotext != "All" and subject_combotext == "All":
@@ -613,11 +527,9 @@ class MainMenuUI(QDialog):
                     rows = cursor.fetchall()
                     row_count = len(rows)
 
-                    # Tablo boyutunu ayarlayın
                     self.summaryTableValuesWidget.setRowCount(row_count)
                     self.summaryTableValuesWidget.setColumnCount(5)
 
-                    # Hücrelere verileri yerleştirin
                     for row in range(row_count):
                         for col in range(5):
                             item = QTableWidgetItem(str(rows[row][col]))
@@ -632,11 +544,9 @@ class MainMenuUI(QDialog):
                     rows = cursor.fetchall()
                     row_count = len(rows)
 
-                    # Tablo boyutunu ayarlayın
                     self.summaryTableValuesWidget.setRowCount(row_count)
                     self.summaryTableValuesWidget.setColumnCount(5)
 
-                    # Hücrelere verileri yerleştirin
                     for row in range(row_count):
                         for col in range(5):
                             item = QTableWidgetItem(str(rows[row][col]))
@@ -651,11 +561,9 @@ class MainMenuUI(QDialog):
                     rows = cursor.fetchall()
                     row_count = len(rows)
 
-                    # Tablo boyutunu ayarlayın
                     self.summaryTableValuesWidget.setRowCount(row_count)
                     self.summaryTableValuesWidget.setColumnCount(5)
 
-                    # Hücrelere verileri yerleştirin
                     for row in range(row_count):
                         for col in range(5):
                             item = QTableWidgetItem(str(rows[row][col]))
@@ -670,21 +578,13 @@ class MainMenuUI(QDialog):
                     rows = cursor.fetchall()
                     row_count = len(rows)
 
-                    # Tablo boyutunu ayarlayın
                     self.summaryTableValuesWidget.setRowCount(row_count)
                     self.summaryTableValuesWidget.setColumnCount(5)
 
-                    # Hücrelere verileri yerleştirin
                     for row in range(row_count):
                         for col in range(5):
                             item = QTableWidgetItem(str(rows[row][col]))
                             self.summaryTableValuesWidget.setItem(row, col, item)
-
-
-
-
-
-
 
         else:
 
@@ -697,11 +597,10 @@ class MainMenuUI(QDialog):
                     rows = cursor.fetchall()
                     row_count = len(rows)
 
-                    # Tablo boyutunu ayarlayın
+
                     self.summaryTableValuesWidget.setRowCount(row_count)
                     self.summaryTableValuesWidget.setColumnCount(5)
 
-                    # Hücrelere verileri yerleştirin
                     for row in range(row_count):
                         for col in range(5):
                             item = QTableWidgetItem(str(rows[row][col]))
@@ -717,11 +616,9 @@ class MainMenuUI(QDialog):
                     rows = cursor.fetchall()
                     row_count = len(rows)
 
-                    # Tablo boyutunu ayarlayın
                     self.summaryTableValuesWidget.setRowCount(row_count)
                     self.summaryTableValuesWidget.setColumnCount(5)
 
-                    # Hücrelere verileri yerleştirin
                     for row in range(row_count):
                         for col in range(5):
                             item = QTableWidgetItem(str(rows[row][col]))
@@ -736,11 +633,9 @@ class MainMenuUI(QDialog):
                     rows = cursor.fetchall()
                     row_count = len(rows)
 
-                    # Tablo boyutunu ayarlayın
                     self.summaryTableValuesWidget.setRowCount(row_count)
                     self.summaryTableValuesWidget.setColumnCount(5)
 
-                    # Hücrelere verileri yerleştirin
                     for row in range(row_count):
                         for col in range(5):
                             item = QTableWidgetItem(str(rows[row][col]))
@@ -755,18 +650,13 @@ class MainMenuUI(QDialog):
                     rows = cursor.fetchall()
                     row_count = len(rows)
 
-                    # Tablo boyutunu ayarlayın
                     self.summaryTableValuesWidget.setRowCount(row_count)
                     self.summaryTableValuesWidget.setColumnCount(5)
 
-                    # Hücrelere verileri yerleştirin
                     for row in range(row_count):
                         for col in range(5):
                             item = QTableWidgetItem(str(rows[row][col]))
                             self.summaryTableValuesWidget.setItem(row, col, item)
-
-
-    
 
 
 # =================================================================
@@ -791,7 +681,6 @@ class PomodoroUI(QDialog):
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_count)
 
-
     # ---------------------------------------------------------------- TasksComboBox ----------------------------------------------------------------
 
         query = "SELECT task_name FROM tasks WHERE (subject_id = (SELECT subject_id FROM subjects WHERE subject_name = ?)) AND (user_id = (SELECT user_id FROM users WHERE user_email = ?))"
@@ -803,24 +692,10 @@ class PomodoroUI(QDialog):
                 self.tasksCombo.addItem(i[0])
     # ---------------------------------------------------------------- TasksComboBox ----------------------------------------------------------------
 
-
         self.sayac = 0
     def start_button(self):
-        
-
-        # print(self.pomodoro_project)
         self.startStopButton.setEnabled(False)
-
-        # sayac()
-        # self.pomodoro_session += 1
-        # print(self.pomodoro_session)
-
         self.timer.start(1000)
-
-        # pomodoro_project = self.pomodoro_project
-        # print(pomodoro_project)
-
-        
 
         with sqlite3.connect("pomodoro.db") as db:
             cursor = db.cursor()
@@ -974,13 +849,7 @@ class ShortBreakUI(QDialog):
         widget.setCurrentIndex(widget.currentIndex()+1)         
 
 
-
-
-
 # =================================================================
-
-
-
 
 
 class LongBreakUI(QDialog):
