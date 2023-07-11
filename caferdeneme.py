@@ -84,7 +84,7 @@ class LoginUI(QDialog):
                 else:
                     self.errorTextLogin.setText("Sorry, your email address is not registered!")
 
-
+                    
     # =================================================================
 
 
