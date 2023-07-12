@@ -9,6 +9,7 @@ import threading
 import time
 import datetime
 from PyQt5.QtCore import QTime, QTimer, QDate, Qt
+from email_sender import send_email
 
 
 po_session = 1
@@ -113,6 +114,7 @@ class MainMenuUI(QDialog):
         self.selectSubjectCombo.currentTextChanged.connect(self.updatecafercombo)
         self.showSummaryProjectCombo.currentTextChanged.connect(self.updateSummarySubjectCombo)
         self.showSummaryButton.clicked.connect(self.show_summary)
+        self.sendEmailThisSummaryButton.connect(self.send_email)
         
 
         query = "SELECT name FROM users WHERE user_email = ?"
@@ -705,6 +707,15 @@ class MainMenuUI(QDialog):
                             item = QTableWidgetItem(str(rows[row][col]))
                             self.summaryTableValuesWidget.setItem(row, col, item)
 
+    def send_email(self):
+        print("email sent")
+        with sqlite3.connect("pomodoro.db") as db:
+                cursor = db.cursor()
+                cursor.execute("SELECT * FROM recipients")
+                recipients_e_mail=[]
+                for i in cursor.fetchall():
+                    recipients_e_mail.append(i[1])
+        send_email(recipient=recipients_e_mail[0], email="Hello")
         
 # =================================================================
 

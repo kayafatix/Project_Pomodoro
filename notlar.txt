@@ -1,5 +1,4 @@
-* date bilgileri eklencek (created_at ) User + Subject +.task...
-* Sing up yaparken 3 adet ikaz ekleyeceğiz.
--> aynı mail ikazı
--> başarılı giriş ikazı
--> yanlış giriş ikazı
+mail: studentvit2023@gmail.com
+mail_password: Fenix_2023
+
+App password: nosl tahz csgi fubv

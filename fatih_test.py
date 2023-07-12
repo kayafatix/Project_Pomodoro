@@ -11,6 +11,7 @@ import sys
 
 from PyQt5.QtCore import QTime, QTimer, QDate, Qt
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
+from email_sender import send_email
 
 po_session = 0
 
@@ -109,6 +110,9 @@ class MainMenuUI(QDialog):
         
         self.selectProjectCombo.currentTextChanged.connect(self.updateSubjectCombo)
         self.projectDeleteCombo.currentTextChanged.connect(self.updateDeleteSubjectCombo)
+        
+        self.sendEmailThisSummaryButton.connect(self.send_email)
+        
         
         # self.db = None
         
@@ -275,6 +279,17 @@ class MainMenuUI(QDialog):
             self.errorTextRecipientsEmailLabel.setText("Sorry, your mail address must include '@' character")
         
         UI.go_main_menu()
+    
+    
+    def send_email(self):
+        print("email sent")
+        with sqlite3.connect("pomodoro.db") as db:
+                cursor = db.cursor()
+                cursor.execute("SELECT * FROM recipients")
+                recipients_e_mail=[]
+                for i in cursor.fetchall():
+                    recipients_e_mail.append(i[1])
+        send_email(recipient=recipients_e_mail[0], email="Hello")
 
 
 # =================================================================
@@ -449,6 +464,7 @@ class PomodoroUI(QDialog):
         #     self.timer.stop()
         #     self.accept()
 
+    
 
 
 # =================================================================
