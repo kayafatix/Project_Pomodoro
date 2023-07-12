@@ -721,6 +721,7 @@ class PomodoroUI(QDialog):
         self.startStopButton.clicked.connect(self.start_button)
         self.doneButton.clicked.connect(self.done_button)
         self.addTask.clicked.connect(self.add_task_button)
+        self.numberOfSession.setText("12")
 
         self.count_minutes = 0  
         self.count_seconds = 5
