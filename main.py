@@ -739,6 +739,7 @@ class PomodoroUI(QDialog):
     # ---------------------------------------------------------------- TasksComboBox ----------------------------------------------------------------
 
         self.sayac = 0
+        
     def start_button(self):
         self.startStopButton.setEnabled(False)
         self.timer.start(1000)
