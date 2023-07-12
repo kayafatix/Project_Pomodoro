@@ -722,7 +722,8 @@ class PomodoroUI(QDialog):
         self.doneButton.clicked.connect(self.done_button)
         self.addTask.clicked.connect(self.add_task_button)
         # self.labelAsNotFinishedButton.connect(self.label_not_finished)
-        self.numberOfSession.setText("12")
+        self.sayac = 0
+        self.numberOfSession.setText(f"{self.sayac+1}")
 
         self.count_minutes = 0  
         self.count_seconds = 5
@@ -741,7 +742,8 @@ class PomodoroUI(QDialog):
                 self.tasksCombo_2.addItem(i[0])
     # ---------------------------------------------------------------- TasksComboBox ----------------------------------------------------------------
 
-        self.sayac = 0
+        
+    
         
     def start_button(self):
         self.startStopButton.setEnabled(False)
