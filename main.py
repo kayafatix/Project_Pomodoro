@@ -398,7 +398,7 @@ class MainMenuUI(QDialog):
                         # db.commit()
                         self.errorTextRecipientsEmailLabel.setText(f"The user '{recipient_email}' has been successfully added.")
                         QTimer.singleShot(1500, UI.go_main_menu)
-              
+
         
     def delete_recipient_emails(self):
         combotext = self.deleteRecipientCombo.currentText()

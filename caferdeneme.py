@@ -152,7 +152,7 @@ class MainMenuUI(QDialog):
                 # print(i)
                 self.deleteRecipientCombo.addItem(i[0])
 
-    # -------------------------------------------------------------All All All---------------------------------------------------------------------------------------
+    # -------------------------------------------------------------Tracking History Filter (All / All / All)---------------------------------------------------------------------------------------
         with sqlite3.connect("pomodoro.db") as db:
 
             cursor = db.cursor()
@@ -276,9 +276,11 @@ class MainMenuUI(QDialog):
         
         if project_name == "":
             self.errorTextProjectLabel.setText("Enter a project name")
+            QTimer.singleShot(1500, UI.go_main_menu)
         
         elif project_name in all_projects:
             self.errorTextProjectLabel.setText(f"{project_name} already exists")
+            QTimer.singleShot(1500, UI.go_main_menu)
     
         else:
             
@@ -289,10 +291,9 @@ class MainMenuUI(QDialog):
                 im = db.cursor()
                 im.execute("INSERT INTO projects(project_name, user_id) VALUES (?, ?)", (project_name, user_id))
             self.errorTextProjectLabel.setText(f"'{project_name}' successfully added.")
-            QTimer.singleShot(2000, UI.go_main_menu)
+            QTimer.singleShot(1500, UI.go_main_menu)
             # UI.go_main_menu()
-        # time.sleep(0.5)    
-        # UI.go_main_menu()         
+                   
 
     def add_new_subject(self):
         subject_name = self.addSubjectInput.text()
@@ -301,9 +302,18 @@ class MainMenuUI(QDialog):
             cursor_2 = db.cursor()
             cursor_2.execute("SELECT subject_name FROM subjects")
             all_subjects = [i[0] for i in cursor_2.fetchall()]
-            print(all_subjects)
+            print(subject_name)
             
-            if subject_name not in all_subjects:
+            if subject_name == "":
+                self.errorTextSubjectLabel.setText("enter a subject")
+                QTimer.singleShot(1500, UI.go_main_menu)
+            
+            elif subject_name in all_subjects:
+                self.errorTextSubjectLabel.setText("Subject already exists")
+                QTimer.singleShot(1000, UI.go_main_menu)
+            
+            else:
+                print("if worked")
                 with sqlite3.connect("pomodoro.db") as db:
                     cursor = db.cursor()
                     cursor.execute("SELECT user_id FROM users WHERE user_email = ?",(self.login,))
@@ -313,22 +323,16 @@ class MainMenuUI(QDialog):
                     cursor1 = db.cursor()
                     cursor1.execute("SELECT project_id FROM projects WHERE project_name = ?",(combotext,))
                     project_id = cursor1.fetchone()[0]
+                    
+                    print(subject_name, project_id, user_id)
                         
-                    im = db.cursor()
-                    im.execute("INSERT INTO subjects(subject_name,user_id,project_id) VALUES (?,?,?)",(subject_name,user_id,project_id,))
-                    self.errorTextSubjectLabel.setText("Subject added.")                    
+                    cursor2 = db.cursor()
+                    cursor2.execute("INSERT INTO subjects(subject_name,user_id,project_id) VALUES (?,?,?)",(subject_name,user_id,project_id,))
+                    self.errorTextSubjectLabel.setText("Subject added.")
+                    QTimer.singleShot(1500, UI.go_main_menu)                    
                     
-            elif subject_name in all_subjects:
-                self.errorTextSubjectLabel.setText("Subject already exists")
-                    
-            else:
-                self.errorTextSubjectLabel.setText("enter a subject")    
-                
-            UI.go_main_menu()
-            
-        print(f"The Subject named {combotext} has been successfully added.")
 
-    def go_pomodoro_menu(self):        
+    def go_pomodoro_menu(self): #Start Pomodoro Button       
 
         pomodoro_menu = PomodoroUI(self.login,self.pomodoro_project,self.currentsubject)
         widget.addWidget(pomodoro_menu)
@@ -361,44 +365,50 @@ class MainMenuUI(QDialog):
         # self.projectDeleteCombo.currentText.clear()
         UI.go_main_menu()
 
+
     def add_new_Recipient(self):
-        self.recipients_email = self.addRecipientInput.text()
-        
-        # is_valid_email = lambda email: True if re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email) else False
-        
-        if self.recipients_email == "a":
-            self.errorTextRecipientsEmailLabel.setText("email fields cannot be left blank!")
-            
-        elif "@" in self.recipients_email:
-            with sqlite3.connect("pomodoro.db") as db:
+        recipient_email = self.addRecipientInput.text()
+        is_valid_email = lambda recipient_email: True if re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', recipient_email) else False
+           
+        with sqlite3.connect("pomodoro.db") as db:
                 cursor = db.cursor()
                 cursor.execute("SELECT * FROM recipients")
                 recipients_e_mail=[]
                 for i in cursor.fetchall():
                     recipients_e_mail.append(i[1])
-                # print( e_mail)
-                if self.recipients_email in recipients_e_mail:
-                    self.errorTextRecipientsEmailLabel.setText(f"The user '{self.recipients_email}' is already exist.")
-                else:
-                    cursor.execute("INSERT INTO recipients(recipients_email) VALUES (?)", (self.recipients_email,))
-                    # db.commit()
-                    self.errorTextRecipientsEmailLabel.setText(f"The user '{self.recipients_email}' has been successfully added.")
-                    self.addRecipientInput.clear()
-                    
-        else:
-            self.errorTextRecipientsEmailLabel.setText("Sorry, your mail address must include '@' character")
         
-        UI.go_main_menu()
+        if recipient_email == "":
+            self.errorTextRecipientsEmailLabel.setText("Please enter an email")
+            QTimer.singleShot(1500, UI.go_main_menu)
+            
+        else:
+            if not is_valid_email(recipient_email):
+                self.errorTextRecipientsEmailLabel.setText("Enter a valid email")
+                QTimer.singleShot(1500, UI.go_main_menu)
+        
+            else:
+                if recipient_email in recipients_e_mail:          
+                    self.errorTextRecipientsEmailLabel.setText(f"{recipient_email} already exists")
+                    QTimer.singleShot(1500, UI.go_main_menu)
+        
+                else:
+                    with sqlite3.connect("pomodoro.db") as db:
+                        cursor1 = db.cursor()                
+                        cursor1.execute("INSERT INTO recipients(recipients_email) VALUES (?)", (recipient_email,))
+                        # db.commit()
+                        self.errorTextRecipientsEmailLabel.setText(f"The user '{recipient_email}' has been successfully added.")
+                        QTimer.singleShot(1500, UI.go_main_menu)
 
+        
     def delete_recipient_emails(self):
-        combotext = self.deleteRecipientCombo.currentText() 
+        combotext = self.deleteRecipientCombo.currentText()
+         
         
         with sqlite3.connect("pomodoro.db") as db: 
             cursor = db.cursor()
             cursor.execute("DELETE FROM recipients WHERE recipients_email = ?", (combotext,))                  
-        # self.deleteRecipientCombo.currentText.clear()
-            UI.go_main_menu()
             self.errorTextRecipientsEmailLabel.setText(f"{combotext} deleted successfully.")
+            QTimer.singleShot(1500, UI.go_main_menu)
 
     def show_summary(self):
 
@@ -729,6 +739,7 @@ class PomodoroUI(QDialog):
     # ---------------------------------------------------------------- TasksComboBox ----------------------------------------------------------------
 
         self.sayac = 0
+        
     def start_button(self):
         self.startStopButton.setEnabled(False)
         self.timer.start(1000)
