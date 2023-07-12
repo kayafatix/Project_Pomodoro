@@ -152,7 +152,7 @@ class MainMenuUI(QDialog):
                 # print(i)
                 self.deleteRecipientCombo.addItem(i[0])
 
-    # -------------------------------------------------------------All All All---------------------------------------------------------------------------------------
+    # -------------------------------------------------------------Tracking History Filter (All / All / All)---------------------------------------------------------------------------------------
         with sqlite3.connect("pomodoro.db") as db:
 
             cursor = db.cursor()
@@ -328,7 +328,7 @@ class MainMenuUI(QDialog):
             
         print(f"The Subject named {combotext} has been successfully added.")
 
-    def go_pomodoro_menu(self):        
+    def go_pomodoro_menu(self): #Start Pomodoro Button       
 
         pomodoro_menu = PomodoroUI(self.login,self.pomodoro_project,self.currentsubject)
         widget.addWidget(pomodoro_menu)
