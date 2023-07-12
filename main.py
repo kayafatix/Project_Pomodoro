@@ -721,6 +721,7 @@ class PomodoroUI(QDialog):
         self.startStopButton.clicked.connect(self.start_button)
         self.doneButton.clicked.connect(self.done_button)
         self.addTask.clicked.connect(self.add_task_button)
+        # self.labelAsNotFinishedButton.connect(self.label_not_finished)
         self.numberOfSession.setText("12")
 
         self.count_minutes = 0  
@@ -737,6 +738,7 @@ class PomodoroUI(QDialog):
             projects = cursor.fetchall()
             for i in projects:
                 self.tasksCombo.addItem(i[0])
+                self.tasksCombo_2.addItem(i[0])
     # ---------------------------------------------------------------- TasksComboBox ----------------------------------------------------------------
 
         self.sayac = 0
@@ -852,7 +854,17 @@ class PomodoroUI(QDialog):
             im.execute("INSERT INTO tasks(user_id,project_id,subject_id,task_name) VALUES (?,?,?,?)",(user_id,project_id,subject_id,add_task,))
 
         QTimer.singleShot(500, lambda: MainMenuUI.go_pomodoro_menu(self))
-        
+    
+    
+    # def label_not_finished(self):
+    #     with sqlite3.connect("pomodoro.db") as db:
+    #         cursor = db.cursor()
+    #         cursor.execute("UPDATE tracking_history SET failure = ?, end_time = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1)", ("-",PomodoroUI.show_time(self),))
+    #         self.timer.stop()
+    #         self.accept()
+
+        # print("not  finished")
+        # MainMenuUI.go_pomodoro_menu(self)   
 
 # =================================================================
 
