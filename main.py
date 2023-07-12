@@ -113,6 +113,7 @@ class MainMenuUI(QDialog):
         self.selectSubjectCombo.currentTextChanged.connect(self.updatecafercombo)
         self.showSummaryProjectCombo.currentTextChanged.connect(self.updateSummarySubjectCombo)
         self.showSummaryButton.clicked.connect(self.show_summary)
+        
 
         query = "SELECT name FROM users WHERE user_email = ?"
         with sqlite3.connect("pomodoro.db") as db:
@@ -704,7 +705,7 @@ class MainMenuUI(QDialog):
                             item = QTableWidgetItem(str(rows[row][col]))
                             self.summaryTableValuesWidget.setItem(row, col, item)
 
-
+        
 # =================================================================
 
 
