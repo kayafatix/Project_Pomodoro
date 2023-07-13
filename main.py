@@ -9,7 +9,7 @@ import threading
 import time
 import datetime
 from PyQt5.QtCore import QTime, QTimer, QDate, Qt
-# from email_sender import send_email
+from email_sender import send_email
 
 
 po_session = 1
@@ -114,7 +114,7 @@ class MainMenuUI(QDialog):
         self.selectSubjectCombo.currentTextChanged.connect(self.updatecafercombo)
         self.showSummaryProjectCombo.currentTextChanged.connect(self.updateSummarySubjectCombo)
         self.showSummaryButton.clicked.connect(self.show_summary)
-        # self.sendEmailThisSummaryButton.connect(self.send_email)
+        self.sendEmailThisSummaryButton.clicked.connect(self.send_email)
         
 
         query = "SELECT name FROM users WHERE user_email = ?"
@@ -413,6 +413,63 @@ class MainMenuUI(QDialog):
             self.errorTextRecipientsEmailLabel.setText(f"{combotext} deleted successfully.")
             QTimer.singleShot(1500, UI.go_main_menu)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def send_email(self):
+        print("email sent0")
+        with sqlite3.connect("pomodoro.db") as db:
+                cursor = db.cursor()
+                cursor.execute("SELECT * FROM recipients")
+                recipients_e_mail=[]
+                
+                for i in cursor.fetchall():
+                    recipients_e_mail.append(i[1])
+                
+                cursor1 = db.cursor()
+
+                cursor1.execute  ("SELECT date,start_time,end_time,success FROM tracking_history WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)",(self.login,))
+                tracking_history = []
+                for i in cursor1.fetchall():
+                    tracking_history.append(i)
+                # tracking_history= [str(i) for i in cursor1.fetchall()]
+                # tracking_history1 = [("cafer","fatih","saban"),("a","b")]
+                print(tracking_history)
+                # print(tracking_history1)
+                print("email sent1")
+                # print(f"{tracking_history}")
+                # tracking_history=cursor1.fetchall()
+                
+        send_email(recipient=recipients_e_mail, email=f"{tracking_history}")
+
+        # send_email(recipient=recipients_e_mail, email=f"{recipients_e_mail}")
+
+        print("email sent2")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     def show_summary(self):
 
         project_combotext = self.showSummaryProjectCombo.currentText()
@@ -707,15 +764,7 @@ class MainMenuUI(QDialog):
                             item = QTableWidgetItem(str(rows[row][col]))
                             self.summaryTableValuesWidget.setItem(row, col, item)
 
-    # def send_email(self):
-    #     print("email sent")
-    #     with sqlite3.connect("pomodoro.db") as db:
-    #             cursor = db.cursor()
-    #             cursor.execute("SELECT * FROM recipients")
-    #             recipients_e_mail=[]
-    #             for i in cursor.fetchall():
-    #                 recipients_e_mail.append(i[1])
-    #     send_email(recipient=recipients_e_mail[0], email="Hello")
+    
         
 # =================================================================
 
@@ -733,9 +782,9 @@ class PomodoroUI(QDialog):
         self.startStopButton.clicked.connect(self.start_button)
         self.doneButton.clicked.connect(self.done_button)
         self.addTask.clicked.connect(self.add_task_button)
-        # self.labelAsNotFinishedButton.connect(self.label_not_finished)
+        self.labelAsNotFinishedButton.clicked.connect(self.label_not_finished)
         self.sayac = 0
-        self.numberOfSession.setText(f"{self.sayac+1}")
+        self.numberOfSession.setText(f"{po_session}")
 
         self.count_minutes = 0  
         self.count_seconds = 5
@@ -779,7 +828,7 @@ class PomodoroUI(QDialog):
             if self.sayac % 2 == 0:
                 self.im = db.cursor()
                 
-                self.im.execute("INSERT INTO tracking_history(user_id, start_time, project_id, subject_id, date) VALUES (?, ?, ?, ?, ?)", (user_id, PomodoroUI.show_time(self), project_id,subject_id,PomodoroUI.show_date(self),))
+                self.im.execute("INSERT INTO tracking_history(user_id, start_time, end_time, project_id, subject_id, date) VALUES (?, ?, ?, ?, ?, ?)", (user_id, PomodoroUI.show_time(self),PomodoroUI.show_time(self), project_id,subject_id,PomodoroUI.show_date(self),))
                 
             else:
                 PomodoroUI.done_button(self)
@@ -790,11 +839,10 @@ class PomodoroUI(QDialog):
         with sqlite3.connect("pomodoro.db") as db:
 
             curss = db.cursor()
-            curss.execute("UPDATE tracking_history SET success = ?, end_time = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1)", ("+",PomodoroUI.show_time(self),))
+            curss.execute("UPDATE tracking_history SET success = ?, end_time = ?, failure = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1)", ("+",PomodoroUI.show_time(self),"x",))
             self.timer.stop()
             self.accept()
         
-
         if po_session % 4 == 0:
                 longbreak = LongBreakUI(self.login,self.pomodoro_project,self.currentsubject)
                 widget.addWidget(longbreak)
@@ -805,6 +853,16 @@ class PomodoroUI(QDialog):
             widget.addWidget(shortbreak)
             widget.setCurrentIndex(widget.currentIndex()+1)
             sayac()
+
+    def label_not_finished(self):
+        with sqlite3.connect("pomodoro.db") as db:
+            cursor = db.cursor()
+            cursor.execute("UPDATE tracking_history SET failure = ?, end_time = ?, success = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1)", ("+",PomodoroUI.show_time(self),"x",))
+            self.timer.stop()
+            self.accept()
+
+        print("not  finished")
+        MainMenuUI.go_pomodoro_menu(self) 
 
 
     def show_time(self):
@@ -819,19 +877,25 @@ class PomodoroUI(QDialog):
             self.timer.stop()
             self.accept()
             if po_session % 4 == 0:
-                    longBreak = LongBreakUI(self.login)
-                    widget.addWidget(longBreak)
-                    widget.setCurrentIndex(widget.currentIndex()+1)
-                    sayac()
+                longBreak = LongBreakUI(self.login,self.pomodoro_project,self.currentsubject)
+                widget.addWidget(longBreak)
+                widget.setCurrentIndex(widget.currentIndex()+1)
+                sayac()
+                with sqlite3.connect("pomodoro.db") as db:
+
+                    curss = db.cursor()
+                    curss.execute("UPDATE tracking_history SET success = ?, end_time = ?, failure = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1)", ("+",PomodoroUI.show_time(self),"x",))
+                    self.timer.stop()
+                    self.accept()
             else:
-                shortbreak = ShortBreakUI(self.login)
+                shortbreak = ShortBreakUI(self.login,self.pomodoro_project,self.currentsubject)
                 widget.addWidget(shortbreak)
                 widget.setCurrentIndex(widget.currentIndex()+1)
                 sayac()
                 with sqlite3.connect("pomodoro.db") as db:
 
                     curss = db.cursor()
-                    curss.execute("UPDATE tracking_history SET success = ?, end_time = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1)", ("+",PomodoroUI.show_time(self),))
+                    curss.execute("UPDATE tracking_history SET success = ?, end_time = ?, failure = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1)", ("+",PomodoroUI.show_time(self),"x",))
                     self.timer.stop()
                     self.accept()
         else:
@@ -868,17 +932,6 @@ class PomodoroUI(QDialog):
             im.execute("INSERT INTO tasks(user_id,project_id,subject_id,task_name) VALUES (?,?,?,?)",(user_id,project_id,subject_id,add_task,))
 
         QTimer.singleShot(500, lambda: MainMenuUI.go_pomodoro_menu(self))
-    
-    
-    # def label_not_finished(self):
-    #     with sqlite3.connect("pomodoro.db") as db:
-    #         cursor = db.cursor()
-    #         cursor.execute("UPDATE tracking_history SET failure = ?, end_time = ? WHERE tracking_history_id = (SELECT tracking_history_id FROM tracking_history ORDER BY tracking_history_id DESC LIMIT 1)", ("-",PomodoroUI.show_time(self),))
-    #         self.timer.stop()
-    #         self.accept()
-
-        # print("not  finished")
-        # MainMenuUI.go_pomodoro_menu(self)   
 
 # =================================================================
 
@@ -897,7 +950,7 @@ class ShortBreakUI(QDialog):
         self.skipButton.clicked.connect(self.skip_button)
 
         self.count_minutes = 0  
-        self.count_seconds = 4
+        self.count_seconds = 3
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_count)
         
@@ -941,8 +994,8 @@ class LongBreakUI(QDialog):
         self.startButton.clicked.connect(self.long_break)
         self.skipButton.clicked.connect(self.skip_button)
 
-        self.count_minutes = 30  
-        self.count_seconds = 0
+        self.count_minutes = 0  
+        self.count_seconds = 3
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_count)
         
