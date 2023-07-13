@@ -1,7 +1,7 @@
 import sqlite3
 from time import time
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QDialog, QApplication, QTableWidgetItem
+from PyQt5.QtWidgets import QDialog, QApplication, QTableWidgetItem, QMainWindow
 from PyQt5.uic import loadUi
 import sys 
 import re
