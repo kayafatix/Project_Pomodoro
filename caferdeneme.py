@@ -956,3 +956,56 @@ widget.setWindowTitle("Time Tracking App")
 widget.show()
 sys.exit(app.exec_())
 
+
+
+
+# def send_email(self):
+#         with sqlite3.connect("pomodoro.db") as db:
+#             cursor = db.cursor()
+#             cursor.execute("SELECT * FROM recipients")
+#             recipients_e_mail = [i[1] for i in cursor.fetchall()]
+#             # print(recipients_e_mail)
+            
+#             cursor1 = db.cursor()
+#             cursor1.execute("SELECT date, start_time, end_time, success, failure FROM tracking_history WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)", (self.login,))
+#             # tracking_history= [' date :' + i[0]+ ' start time :' + str(i[1]) + ' end time :' + str(i[2]) + ' success :' +i[3]+ ' failure :' +i[4] for i in cursor1.fetchall()]
+#             # tracking_history= [type(i)[0] for i in cursor1.fetchall()]
+#             tracking_history= [' date :' + i[0] + ' success :' +i[3]+ ' failure :' +i[4] for i in cursor1.fetchall()]
+
+            
+            
+            
+#             print(tracking_history)
+#             send_email(recipient=recipients_e_mail, email=f'{tracking_history}')
+
+    # def send_email(self):
+    #     with sqlite3.connect("pomodoro.db") as db:
+    #         cursor = db.cursor()
+    #         cursor.execute("SELECT * FROM recipients")
+    #         recipients_e_mail = [i[1] for i in cursor.fetchall()]
+    #         print(recipients_e_mail)
+
+    #         cursor1 = db.cursor()
+    #         cursor1.execute("SELECT date, start_time, end_time FROM tracking_history WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)", (self.login,))
+    #         tracking_history = [list(i) for i in cursor1.fetchall()]
+
+    #         tracking_history_formatted = []
+    #         for entry in tracking_history:
+    #             formatted_entry = f"Date: {entry[0]}, Start Time: {entry[1]}, End Time: {entry[2]}"
+    #             tracking_history_formatted.append(formatted_entry)
+
+    #         email_body = "\n".join(tracking_history_formatted)
+
+    #         print(tracking_history)
+
+    #         port = 465
+    #         smtp_server = "smtp.gmail.com"
+    #         sender = "studentvit2023@gmail.com"
+    #         password = "nosltahzcsgifubv"
+
+    #         context = ssl.create_default_context()
+    #         with smtplib.SMTP_SSL(smtp_server, port, context=context) as smtp:
+    #             smtp.login(sender, password)
+    #             for recipient in recipients_e_mail:
+    #                 smtp.sendmail(sender, recipient, email_body)
+
