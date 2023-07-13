@@ -1,7 +1,7 @@
 import sqlite3
 from time import time
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QDialog, QApplication, QTableWidgetItem
+from PyQt5.QtWidgets import QDialog, QApplication, QTableWidgetItem, QMainWindow
 from PyQt5.uic import loadUi
 import sys 
 import re
@@ -25,6 +25,7 @@ class LoginUI(QDialog):
         super(LoginUI,self).__init__()
         loadUi("UI//login.ui",self)
         self.signUpButton.clicked.connect(self.sign_up_button)
+        self.emailInputLogin.returnPressed.connect(self.loginButton.click)
         self.loginButton.clicked.connect(self.login_button)
         self.errorTextLogin.setText("")
         self.errorTextSignUp.setText("")
@@ -96,8 +97,11 @@ class MainMenuUI(QDialog):
         loadUi("UI//mainMenu.ui", self)
         self.login = login
         
+        self.addProjectInput.returnPressed.connect(self.addProjectButton.click)
         self.addProjectButton.clicked.connect(self.add_new_Project)
+        self.addSubjectInput.returnPressed.connect(self.addSubjectButton.click)
         self.addSubjectButton.clicked.connect(self.add_new_subject)
+        self.addRecipientInput.returnPressed.connect(self.addRecipientButton.click)
         self.addRecipientButton.clicked.connect(self.add_new_Recipient)
         
         self.startPomodoroButton.clicked.connect(self.go_pomodoro_menu)
