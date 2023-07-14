@@ -203,7 +203,7 @@ class MainMenuUI(QDialog):
             with sqlite3.connect("pomodoro.db") as db:
                 self.selectSubjectCombo.clear() 
                 cursor = db.cursor()
-                cursor.execute("SELECT subject_name FROM subjects WHERE project_id = (SELECT project_id FROM projects WHERE project_name = ?)", (selectedProject,))
+                cursor.execute("SELECT subject_name FROM subjects WHERE (project_id = (SELECT project_id FROM projects WHERE project_name = ?) AND (user_id = (SELECT user_id FROM users WHERE user_email = ?)))", (selectedProject,self.login,))
                 subjects = cursor.fetchall()
 
                 for i in subjects:
@@ -790,8 +790,8 @@ class PomodoroUI(QDialog):
         self.sayac = 0
         self.numberOfSession.setText(f"{po_session}")
 
-        self.count_minutes = 0  
-        self.count_seconds = 5
+        self.count_minutes = 25  
+        self.count_seconds = 0
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_count)
 
@@ -953,8 +953,8 @@ class ShortBreakUI(QDialog):
         self.startButton.clicked.connect(self.short_break)
         self.skipButton.clicked.connect(self.skip_button)
 
-        self.count_minutes = 0  
-        self.count_seconds = 3
+        self.count_minutes = 5  
+        self.count_seconds = 0
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_count)
         
@@ -998,8 +998,8 @@ class LongBreakUI(QDialog):
         self.startButton.clicked.connect(self.long_break)
         self.skipButton.clicked.connect(self.skip_button)
 
-        self.count_minutes = 0  
-        self.count_seconds = 3
+        self.count_minutes = 20  
+        self.count_seconds = 0
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_count)
         
