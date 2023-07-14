@@ -9,7 +9,8 @@ import threading
 import time
 import datetime
 from PyQt5.QtCore import QTime, QTimer, QDate, Qt
-from email_sender import send_email
+from email_send_with_att import send_emails
+
 import json
 
 
@@ -431,8 +432,7 @@ class MainMenuUI(QDialog):
 
 
 
-    def send_email(self):
-        
+    def send_email(self):        
         
         with sqlite3.connect("pomodoro.db") as db:
                 cursor = db.cursor()
@@ -441,46 +441,84 @@ class MainMenuUI(QDialog):
                 
                 for i in cursor.fetchall():
                     recipients_e_mail.append(i[1])
-                
-
-        with sqlite3.connect("pomodoro.db") as db:
-                cursor1 = db.cursor()
-
-                cursor1.execute  ("SELECT date,start_time,end_time,success FROM tracking_history WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)",(self.login,))
-                tracking_history = []
-                
-                for i in cursor1.fetchall():
-                    tracking_history.append(i)
-                                
-                s_track = "".join(tracking_history)
-                # print(s_track)
-                # track_json = json.dumps(tracking_history)
-                # print(track_json)
-                
-                # with open ("track_hist.txt", "w") as file:
-                #     for i in tracking_history:
-                #         file.write(f"{i} \n")
-                # with open ("track_hist.txt", "r") as file1:                    
-                #     icerik = file1.readlines()
-                #     print(icerik, end="-")
-                        
-                # tracking_history= [str(i) for i in cursor1.fetchall()]
-                tracking_history1 = [("cafer","fatih","saban"),("a","b")]
-                # print(tracking_history)
-                # print(tracking_history1)
-                # print("email sent1")
-                # print(f"{tracking_history}")
-                # tracking_history=cursor1.fetchall()
-                
-        # send_email(recipient=recipients_e_mail, email=f"{tracking_history1}")
         
-        # send_email(recipient=recipients_e_mail, email= track_json)
+        with sqlite3.connect("pomodoro.db") as db:
+            cursor1 = db.cursor()
 
-        # send_email(recipient=recipients_e_mail, email= f"{recipients_e_mail}")
-        send_email(recipient=recipients_e_mail, email= f"{s_track}")
-        # send_email(recipient=recipients_e_mail, email=f"{tracking_history} merhaba, artık yazdır")
+            cursor1.execute  ("SELECT date,start_time,end_time,success FROM tracking_history WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)",(self.login,))
+            tracking_history = []
+                
+            for i in cursor1.fetchall():
+                tracking_history.append(i)
+                                
+        with open ("track_hist.txt", "w") as file:
+            for i in tracking_history:
+                file.write(f"{i} \n")
+                
+        
+        send_emails(recipients_e_mail)
+        
 
         print("email sent2")
+        
+        
+    
+    
+    
+    
+    
+    
+    
+    # def send_email(self):
+        
+        
+    #     with sqlite3.connect("pomodoro.db") as db:
+    #             cursor = db.cursor()
+    #             cursor.execute("SELECT * FROM recipients")
+    #             recipients_e_mail=[]
+                
+    #             for i in cursor.fetchall():
+    #                 recipients_e_mail.append(i[1])
+                
+
+    #     with sqlite3.connect("pomodoro.db") as db:
+    #             cursor1 = db.cursor()
+
+    #             cursor1.execute  ("SELECT date,start_time,end_time,success FROM tracking_history WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)",(self.login,))
+    #             tracking_history = []
+                
+    #             for i in cursor1.fetchall():
+    #                 tracking_history.append(i)
+                                
+    #             s_track = "".join(tracking_history)
+    #             # print(s_track)
+    #             # track_json = json.dumps(tracking_history)
+    #             # print(track_json)
+                
+    #             # with open ("track_hist.txt", "w") as file:
+    #             #     for i in tracking_history:
+    #             #         file.write(f"{i} \n")
+    #             # with open ("track_hist.txt", "r") as file1:                    
+    #             #     icerik = file1.readlines()
+    #             #     print(icerik, end="-")
+                        
+    #             # tracking_history= [str(i) for i in cursor1.fetchall()]
+    #             tracking_history1 = [("cafer","fatih","saban"),("a","b")]
+    #             # print(tracking_history)
+    #             # print(tracking_history1)
+    #             # print("email sent1")
+    #             # print(f"{tracking_history}")
+    #             # tracking_history=cursor1.fetchall()
+                
+    #     # send_email(recipient=recipients_e_mail, email=f"{tracking_history1}")
+        
+    #     # send_email(recipient=recipients_e_mail, email= track_json)
+
+    #     # send_email(recipient=recipients_e_mail, email= f"{recipients_e_mail}")
+    #     send_email(recipient=recipients_e_mail, email= f"{s_track}")
+    #     # send_email(recipient=recipients_e_mail, email=f"{tracking_history} merhaba, artık yazdır")
+
+    #     print("email sent2")
 
 
 
