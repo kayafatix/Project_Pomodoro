@@ -5,11 +5,11 @@ from PyQt5.QtWidgets import QDialog, QApplication, QTableWidgetItem, QMainWindow
 from PyQt5.uic import loadUi
 import sys 
 import re
-import threading
+
 import time
 import datetime
 from PyQt5.QtCore import QTime, QTimer, QDate, Qt
-# from email_sender import send_email
+
 from email_send_with_att import send_emails
 import csv
 
@@ -18,7 +18,7 @@ po_session = 1
 def sayac():
     global po_session 
     po_session += 1
-    # print(po_session)
+    
 
 class LoginUI(QDialog):
 
@@ -457,54 +457,6 @@ class MainMenuUI(QDialog):
 
         print("email sent2")
         
-
-
-
-
-
-
-
-
-    # def send_email(self):
-    #     print("email sent0")
-    #     with sqlite3.connect("pomodoro.db") as db:
-    #             cursor = db.cursor()
-    #             cursor.execute("SELECT * FROM recipients")
-    #             recipients_e_mail=[]
-                
-    #             for i in cursor.fetchall():
-    #                 recipients_e_mail.append(i[1])
-                
-    #             cursor1 = db.cursor()
-
-    #             cursor1.execute  ("SELECT date,start_time,end_time,success FROM tracking_history WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)",(self.login,))
-    #             tracking_history = []
-    #             for i in cursor1.fetchall():
-    #                 tracking_history.append(i)
-    #             # tracking_history= [str(i) for i in cursor1.fetchall()]
-    #             # tracking_history1 = [("cafer","fatih","saban"),("a","b")]
-    #             print(tracking_history)
-    #             # print(tracking_history1)
-    #             print("email sent1")
-    #             # print(f"{tracking_history}")
-    #             # tracking_history=cursor1.fetchall()
-                
-    #     send_email(recipient=recipients_e_mail, email=f"{tracking_history}")
-
-    #     # send_email(recipient=recipients_e_mail, email=f"{recipients_e_mail}")
-
-    #     print("email sent2")
-
-
-
-
-
-
-
-
-
-
-
 
 
 
