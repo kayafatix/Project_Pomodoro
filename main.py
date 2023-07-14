@@ -204,7 +204,7 @@ class MainMenuUI(QDialog):
             with sqlite3.connect("pomodoro.db") as db:
                 self.selectSubjectCombo.clear() 
                 cursor = db.cursor()
-                cursor.execute("SELECT subject_name FROM subjects WHERE project_id = (SELECT project_id FROM projects WHERE project_name = ?)", (selectedProject,))
+                cursor.execute("SELECT subject_name FROM subjects WHERE (project_id = (SELECT project_id FROM projects WHERE project_name = ?) AND (user_id = (SELECT user_id FROM users WHERE user_email = ?)))", (selectedProject,self.login,))
                 subjects = cursor.fetchall()
 
                 for i in subjects:
@@ -310,7 +310,7 @@ class MainMenuUI(QDialog):
             cursor_2 = db.cursor()
             cursor_2.execute("SELECT subject_name FROM subjects")
             all_subjects = [i[0] for i in cursor_2.fetchall()]
-            print(subject_name)
+            # print(subject_name)
             
             if subject_name == "":
                 self.errorTextSubjectLabel.setText("enter a subject")
@@ -321,7 +321,6 @@ class MainMenuUI(QDialog):
                 QTimer.singleShot(1000, UI.go_main_menu)
             
             else:
-                print("if worked")
                 with sqlite3.connect("pomodoro.db") as db:
                     cursor = db.cursor()
                     cursor.execute("SELECT user_id FROM users WHERE user_email = ?",(self.login,))
@@ -332,7 +331,7 @@ class MainMenuUI(QDialog):
                     cursor1.execute("SELECT project_id FROM projects WHERE project_name = ?",(combotext,))
                     project_id = cursor1.fetchone()[0]
                     
-                    print(subject_name, project_id, user_id)
+                    # print(subject_name, project_id, user_id)
                         
                     cursor2 = db.cursor()
                     cursor2.execute("INSERT INTO subjects(subject_name,user_id,project_id) VALUES (?,?,?)",(subject_name,user_id,project_id,))
@@ -826,8 +825,8 @@ class PomodoroUI(QDialog):
         self.sayac = 0
         self.numberOfSession.setText(f"{po_session}")
 
-        self.count_minutes = 0  
-        self.count_seconds = 5
+        self.count_minutes = 25  
+        self.count_seconds = 0
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_count)
 
@@ -902,7 +901,8 @@ class PomodoroUI(QDialog):
             self.accept()
 
         print("not  finished")
-        MainMenuUI.go_pomodoro_menu(self) 
+        LoginUI.go_main_menu(self)
+        # MainMenuUI.go_pomodoro_menu(self)
 
 
     def show_time(self):
@@ -989,8 +989,8 @@ class ShortBreakUI(QDialog):
         self.startButton.clicked.connect(self.short_break)
         self.skipButton.clicked.connect(self.skip_button)
 
-        self.count_minutes = 0  
-        self.count_seconds = 3
+        self.count_minutes = 5  
+        self.count_seconds = 0
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_count)
         
@@ -1034,8 +1034,8 @@ class LongBreakUI(QDialog):
         self.startButton.clicked.connect(self.long_break)
         self.skipButton.clicked.connect(self.skip_button)
 
-        self.count_minutes = 0  
-        self.count_seconds = 3
+        self.count_minutes = 20  
+        self.count_seconds = 0
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_count)
         
