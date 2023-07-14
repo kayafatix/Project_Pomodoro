@@ -11,6 +11,7 @@ import datetime
 from PyQt5.QtCore import QTime, QTimer, QDate, Qt
 # from email_sender import send_email
 from email_send_with_att import send_emails
+import csv
 
 po_session = 1
 
@@ -436,11 +437,16 @@ class MainMenuUI(QDialog):
         with sqlite3.connect("pomodoro.db") as db:
             cursor1 = db.cursor()
 
-            cursor1.execute  ("SELECT date,start_time,end_time,success FROM tracking_history WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)",(self.login,))
+            cursor1.execute  ("SELECT date,start_time,end_time,success,failure FROM tracking_history WHERE user_id = (SELECT user_id FROM users WHERE user_email = ?)",(self.login,))
             tracking_history = []
                 
             for i in cursor1.fetchall():
                 tracking_history.append(i)
+                
+        file = open("track_hist.csv", "a", newline="")
+        writer = csv.writer(file)
+        writer.writerows(tracking_history)
+        file.close()
                                 
         with open ("track_hist.txt", "w") as file:
             for i in tracking_history:

@@ -10,8 +10,8 @@ import time
 import datetime
 from PyQt5.QtCore import QTime, QTimer, QDate, Qt
 from email_send_with_att import send_emails
+import csv
 
-import json
 
 
 po_session = 1
@@ -450,6 +450,14 @@ class MainMenuUI(QDialog):
                 
             for i in cursor1.fetchall():
                 tracking_history.append(i)
+        
+        file = open("track_hist.csv", "a", newline="")
+        writer = csv.writer(file)
+        writer.writerows(tracking_history)
+        file.close()
+        
+        
+        
                                 
         with open ("track_hist.txt", "w") as file:
             for i in tracking_history:
