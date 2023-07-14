@@ -52,7 +52,7 @@ def send_emails(email_list):
         msg.attach(MIMEText(body, 'plain'))
 
         # Define the file to attach
-        filename = "track_hist.txt"
+        filename = "track_hist.csv"
 
         # Open the file in python as a binary
         attachment= open(filename, 'rb')  # r for read and b for binary
