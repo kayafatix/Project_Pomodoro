@@ -1,10 +1,3 @@
-"""
-######################################################################
-Email With Attachments Python Script
-Coded By "The Intrigued Engineer" over a coffee
-Thanks For Watching!!!
-######################################################################
-"""
 
 import smtplib
 from email.mime.text import MIMEText
@@ -30,7 +23,7 @@ subject = "Pomodoro History"
 
 
 
-# Define the email function (dont call it email!)
+
 def send_emails(email_list):
 
     for person in email_list:
